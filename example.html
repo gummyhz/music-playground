@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Web Audio Tuner</title>
+    <style>
+        body { font-family: sans-serif; text-align: center; background: #121212; color: white; }
+        #note { font-size: 5rem; margin-top: 20px; color: #00ffcc; }
+        #freq { font-size: 1.5rem; color: #888; }
+        .meter { width: 300px; height: 10px; background: #333; margin: 20px auto; position: relative; }
+        #needle { width: 4px; height: 20px; background: #ff3366; position: absolute; left: 50%; top: -5px; transition: left 0.1s; }
+    </style>
+</head>
+<body>
+    <h1>JS Tuner</h1>
+    <div id="note">--</div>
+    <div id="freq">0.0 Hz</div>
+    <div class="meter"><div id="needle"></div></div>
+    <button id="start">Start Microphone</button>
+
+    <script>
+        const noteNames = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"];
+        let audioCtx, analyser, buffer;
+
+        document.getElementById('start').onclick = async () => {
+            audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+            const source = audioCtx.createMediaStreamSource(stream);
+            
+            analyser = audioCtx.createAnalyser();
+            analyser.fftSize = 2048;
+            buffer = new Float32Array(analyser.fftSize);
+            
+            source.connect(analyser);
+            document.getElementById('start').style.display = 'none';
+            update();
+        };
+
+        function update() {
+            analyser.getFloatTimeDomainData(buffer);
+            const pitch = autoCorrelate(buffer, audioCtx.sampleRate);
+
+            if (pitch !== -1) {
+                const { note, cents } = getNote(pitch);
+                document.getElementById('note').innerText = note;
+                document.getElementById('freq').innerText = `${pitch.toFixed(1)} Hz`;
+                document.getElementById('needle').style.left = `${50 + cents}%`;
+            }
+            requestAnimationFrame(update);
+        }
+
+        // Autocorrelation algorithm to find fundamental frequency
+        function autoCorrelate(buf, sampleRate) {
+            let size = buf.length;
+            let rms = 0;
+            for (let i = 0; i < size; i++) rms += buf[i] * buf[i];
+            if (Math.sqrt(rms / size) < 0.01) return -1; // Too quiet
+
+            let r1 = 0, r2 = size - 1, thres = 0.2;
+            for (let i = 0; i < size / 2; i++) {
+                if (Math.abs(buf[i]) < thres) { r1 = i; break; }
+            }
+            for (let i = 1; i < size / 2; i++) {
+                if (Math.abs(buf[size - i]) < thres) { r2 = size - i; break; }
+            }
+
+            buf = buf.slice(r1, r2);
+            size = buf.length;
+
+            let c = new Array(size).fill(0);
+            for (let i = 0; i < size; i++) {
+                for (let j = 0; j < size - i; j++) {
+                    c[i] = c[i] + buf[j] * buf[j + i];
+                }
+            }
+
+            let d = 0; while (c[d] > c[d + 1]) d++;
+            let maxval = -1, maxpos = -1;
+            for (let i = d; i < size; i++) {
+                if (c[i] > maxval) { maxval = c[i]; maxpos = i; }
+            }
+
+            return sampleRate / maxpos;
+        }
+
+        function getNote(frequency) {
+            const j = Math.round(12 * (Math.log(frequency / 440) / Math.log(2)));
+            const noteIndex = (j + 69) % 12;
+            const cents = Math.floor(1200 * Math.log2(frequency / (440 * Math.pow(2, j / 12))));
+            return { note: noteNames[noteIndex], cents: cents };
+        }
+    </script>
+</body>
+</html>
