@@ -157,6 +157,27 @@
         .tml-display {
             margin: 1rem;
         }
+
+        #cloud-circle {
+            width: 500px;
+            height: 275px;
+            border-radius: 50%;
+            filter: url(#filter);
+            box-shadow: 400px 400px 60px 0px #fff;
+            position: absolute;
+            top: -320px;
+            left: -320px;
+        }
+
+        canvas {
+            width: 100%;
+            height: 250px;
+            /* Force a height */
+            display: block;
+            margin: 20px 0;
+            background-color: var(--wm-silver);
+            border: 1px solid var(--wm-gold);
+        }
     </style>
 </head>
 
@@ -172,8 +193,15 @@
     <div class="meter">
         <div id="needle"></div>
     </div>
+    <!-- <div id="cloud-circle"></div> -->
+    <!-- <svg width="0" height="0"> 
+    <filter id="filter">
+      <feTurbulence type="fractalNoise" baseFrequency=".01" numOctaves="10" />
+      <feDisplacementMap in="SourceGraphic" scale="180" />
+    </filter>
+</svg> -->
     <div class="dropdown">
-        <select class="dropbtn">Scale used: 
+        <select class="dropbtn">Scale used:
             <option>2-TET (12 tone equal temperment)</option>
             <option>Pelog</option>
         </select>
@@ -188,10 +216,15 @@
         <br>
         The input signal, obtained from the Web Audio API,
         comes in as a discrete time-series array of amplitudes.
-        <br>
-        We use the following autocorrelation function 
-        to quantify the similarity between a signal 
-        and itself delayed by some lag <math><mi>τ</mi></math>.
+
+        <canvas id="amp-canvas"></canvas>
+
+
+        We use the following autocorrelation function
+        to quantify the similarity between a signal
+        and itself delayed by some lag <math>
+            <mi>τ</mi>
+        </math>.
 
         <math display="block" class="tml-display" style="display:block math;">
             <mrow>
@@ -239,13 +272,227 @@
             </mrow>
         </math>
 
+        Here, <math>
+            <mrow>
+                <msub>
+                    <mi>r</mi>
+                    <mi>t</mi>
+                </msub>
+                <mrow>
+                    <mo fence="true" form="prefix" stretchy="false">(</mo>
+                    <mi>τ</mi>
+                    <mo fence="true" form="postfix" stretchy="false">)</mo>
+                </mrow>
+            </mrow>
+        </math> is the autocorrelation function at the time intex <math>
+            <mi>t</mi>
+        </math>, with a lag of <math>
+            <mi>τ</mi>
+        </math>. <math>
+            <mi>W</mi>
+        </math> is the integration window size, or the time frame in consideration.
+        We subtract <math>
+            <mi>τ</mi>
+        </math> from the upper summation bound to lessen the effect of larger lag sizes,
+        with the assumption that the
+        fundemental frequency is closer to the origin point <math>
+            <mi>t</mi>
+        </math>.
+        <br>
+        <br>
+        The Weiner-Khinchin theorem (in the discrete time case) allows us to compute the autocorrelation funtion using a
+        Fourier Transform.
+        <br>
+        <br>
+        To get there, we must start with the spectral power density function. 
+        <br>The spectral power density of the autocorrelation function represents the distribution of intensity (power) of
+        the signal across frequencies.
+        It can be found by taking the statistical mean of the signal's power, in terms of frequency.
 
+        <br>
+        somehow we get
+        <br>
+           
+      
+
+
+        <br>
+        <br>
+        Consider this difference function, used to find an unknown period:
+        <math display="block" class="tml-display" style="display:block math;">
+            <mrow>
+                <msub>
+                    <mi>d</mi>
+                    <mi>t</mi>
+                </msub>
+                <mrow>
+                    <mo fence="true" form="prefix" stretchy="false">(</mo>
+                    <mi>τ</mi>
+                    <mo fence="true" form="postfix" stretchy="false">)</mo>
+                </mrow>
+                <mo>=</mo>
+                <mrow>
+                    <munderover>
+                        <mo movablelimits="false">∑</mo>
+                        <mrow>
+                            <mi>j</mi>
+                            <mo>=</mo>
+                            <mn>1</mn>
+                        </mrow>
+                        <mi>W</mi>
+                    </munderover>
+                </mrow>
+                <msup>
+                    <mrow>
+                        <mo fence="true" form="prefix" stretchy="false">(</mo>
+                        <msub>
+                            <mi>x</mi>
+                            <mi>j</mi>
+                        </msub>
+                        <mo>−</mo>
+                        <msub>
+                            <mi>x</mi>
+                            <mrow>
+                                <mi>j</mi>
+                                <mo>−</mo>
+                                <mi>τ</mi>
+                            </mrow>
+                        </msub>
+                        <mo fence="true" form="postfix" stretchy="false">)</mo>
+                    </mrow>
+                    <mn>2</mn>
+                </msup>
+            </mrow>
+        </math>
+        When <math>
+            <mrow>
+                <mi>d</mi>
+                <mrow>
+                    <mo fence="true" form="prefix" stretchy="false">(</mo>
+                    <mi>τ</mi>
+                    <mo fence="true" form="postfix" stretchy="false">)</mo>
+                </mrow>
+                <mo>=</mo>
+                <mn>0</mn>
+            </mrow>
+        </math>, we have a tau which is a multiple of the period.
+        <br><br>
+        This can be expanded,
+        <math display="block" class="tml-display" style="display:block math;">
+            <mrow>
+                <msub>
+                    <mi>d</mi>
+                    <mi>t</mi>
+                </msub>
+                <mrow>
+                    <mo fence="true" form="prefix" stretchy="false">(</mo>
+                    <mi>τ</mi>
+                    <mo fence="true" form="postfix" stretchy="false">)</mo>
+                </mrow>
+                <mo>=</mo>
+                <mrow>
+                    <munderover>
+                        <mo movablelimits="false">∑</mo>
+                        <mrow>
+                            <mi>j</mi>
+                            <mo>=</mo>
+                            <mn>1</mn>
+                        </mrow>
+                        <mi>W</mi>
+                    </munderover>
+                </mrow>
+                <mrow>
+                    <mo fence="true" form="prefix" stretchy="false">(</mo>
+                    <msubsup>
+                        <mi>x</mi>
+                        <mi>j</mi>
+                        <mn class="tml-sml-pad">2</mn>
+                    </msubsup>
+                    <mo>+</mo>
+                    <msubsup>
+                        <mi>x</mi>
+                        <mrow>
+                            <mi>j</mi>
+                            <mo>−</mo>
+                            <mi>τ</mi>
+                        </mrow>
+                        <mn class="tml-sml-pad">2</mn>
+                    </msubsup>
+                    <mo>−</mo>
+                    <mn>2</mn>
+                    <msub>
+                        <mi>x</mi>
+                        <mi>j</mi>
+                    </msub>
+                    <msub>
+                        <mi>x</mi>
+                        <mrow>
+                            <mi>j</mi>
+                            <mo>−</mo>
+                            <mi>τ</mi>
+                        </mrow>
+                    </msub>
+                    <mo fence="true" form="postfix" stretchy="false">)</mo>
+                </mrow>
+            </mrow>
+        </math>
+
+
+        and we can substitute in the autocorrelation function:
+        <math display="block" class="tml-display" style="display:block math;">
+            <mrow>
+                <msub>
+                    <mi>d</mi>
+                    <mi>t</mi>
+                </msub>
+                <mrow>
+                    <mo fence="true" form="prefix" stretchy="false">(</mo>
+                    <mi>τ</mi>
+                    <mo fence="true" form="postfix" stretchy="false">)</mo>
+                </mrow>
+                <mo>=</mo>
+                <msub>
+                    <mi>r</mi>
+                    <mi>t</mi>
+                </msub>
+                <mrow>
+                    <mo fence="true" form="prefix" stretchy="false">(</mo>
+                    <mn>0</mn>
+                    <mo fence="true" form="postfix" stretchy="false">)</mo>
+                </mrow>
+                <mo>+</mo>
+                <msub>
+                    <mi>r</mi>
+                    <mrow>
+                        <mi>t</mi>
+                        <mo>+</mo>
+                        <mi>τ</mi>
+                    </mrow>
+                </msub>
+                <mrow>
+                    <mo fence="true" form="prefix" stretchy="false">(</mo>
+                    <mn>0</mn>
+                    <mo fence="true" form="postfix" stretchy="false">)</mo>
+                </mrow>
+                <mo>−</mo>
+                <mn>2</mn>
+                <msub>
+                    <mi>r</mi>
+                    <mi>t</mi>
+                </msub>
+                <mrow>
+                    <mo fence="true" form="prefix" stretchy="false">(</mo>
+                    <mi>τ</mi>
+                    <mo fence="true" form="postfix" stretchy="false">)</mo>
+                </mrow>
+            </mrow>
+        </math>
         <math display="block" class="tml-display" style="display:block math;">
             <mrow>
                 <mi>f</mi>
                 <mo>=</mo>
                 <mfrac>
-                    <mtext>sample rate</mtext>
+                    <mtext>sample rate</mtext>
                     <mtext>lag</mtext>
                 </mfrac>
             </mrow>
@@ -253,12 +500,33 @@
     </div>
 
 
+    <canvas id="freq-canvas"></canvas>
+
+
+
 
     <script>
-        const twelveTET = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"];
-        const pelogNum = ["1", "2", "3", "4", "5", "6", "7"]
+        const startButton = document.getElementById('start');
 
-        let audioCtx, analyser, buffer;
+        const sizeDisplay = document.getElementById('sizeDisplay');
+
+        let audioCtx;
+        let analyser;
+        let source;
+        let buffer;
+        let tdarray;
+        let fdarray;
+        let bufferLength;
+
+        const twelveTET = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"];
+        const pelogNum = ["1", "2", "3", "4", "5", "6", "7"];
+        //  124.00000 cents ! Galimer
+        //  273.00000 cents ! Panelu
+        //  540.00000 cents ! Bungur
+        //  676.00000 cents ! Loloran
+        //  790.00000 cents ! Tugu
+        //  971.00000 cents ! Sorog
+        //  2/1 ! Singgul
 
 
 
@@ -267,19 +535,177 @@
             audioCtx = new (window.AudioContext || window.webkitAudioContext)();
             const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
             const source = audioCtx.createMediaStreamSource(stream);
+
+            analyser = audioCtx.createAnalyser();
+            analyser.fftSize = 2048;
+            analyser.smoothingTimeConstant = 0.8;
+
+            bufferLength = analyser.frequencyBinCount;
+            tdarray = new Uint8Array(analyser.fftSize);
+            fdarray = new Uint8Array(analyser.frequencyBinCount);
+            buffer = new Float32Array(analyser.fftSize);
+
+            source.connect(analyser);
+            startButton.style.display = 'none';
+            update();
+            draw();
         };
 
+        function draw() {
+            requestAnimationFrame(draw);
+            analyser.getByteTimeDomainData(tdarray);
+            analyser.getByteFrequencyData(fdarray);
+
+            drawAmpTime();
+            drawFreqTime();
+        }
+
+        function drawAmpTime() {
+            const canvas = document.getElementById('amp-canvas');
+            const ctx = canvas.getContext('2d');
+            const WIDTH = canvas.width = canvas.clientWidth;
+            const HEIGHT = canvas.height = canvas.clientHeight;
+
+            const margin = 40;
+            const plotWidth = WIDTH - margin;
+            const plotHeight = HEIGHT - margin;
+
+            ctx.fillStyle = "#D8DCDB"; // --wm-silver
+            ctx.fillRect(0, 0, WIDTH, HEIGHT);
+            ctx.lineWidth = 2;
+            ctx.strokeStyle = "#004E38"; // --wm-green
+            ctx.beginPath();
+
+            const sliceWidth = plotWidth / tdarray.length;
+            let x = margin;
+
+            for (let i = 0; i < tdarray.length; i++) {
+                const v = tdarray[i] / 128.0;
+                const y = (v * plotHeight) / 2;
+                if (i === 0) ctx.moveTo(x, y);
+                else ctx.lineTo(x, y);
+                x += sliceWidth;
+            }
+            // ctx.lineTo(WIDTH, HEIGHT / 2);
+            ctx.stroke();
+            drawAxes(ctx, WIDTH, HEIGHT, "Time", "Amp");
+        };
+
+
+        function drawFreqTime() {
+            const canvas = document.getElementById('freq-canvas');
+            const ctx = canvas.getContext('2d');
+            const WIDTH = canvas.width = canvas.clientWidth;
+            const HEIGHT = canvas.height = canvas.clientHeight;
+
+            ctx.fillStyle = "#D8DCDB";
+            ctx.fillRect(0, 0, WIDTH, HEIGHT);
+
+            const margin = 40;
+            const plotWidth = WIDTH - margin;
+            const plotHeight = HEIGHT - margin;
+
+            const barWidth = (WIDTH / fdarray.length) * 2.5;
+            let x = margin; // Start after Y-axis
+
+            // Start i at 2 to ignore the DC offset/low rumble at 0Hz
+            for (let i = 2; i < fdarray.length; i++) {
+                const barHeight = (fdarray[i] / 255) * plotHeight;
+                ctx.fillStyle = "#004E38";
+                ctx.fillRect(x, HEIGHT - barHeight - 20, barWidth, barHeight);
+                x += barWidth + 1;
+            }
+
+            drawAxes(ctx, WIDTH, HEIGHT, "Hz", "Amp");
+        }
+
+        function drawAxes(ctx, width, height, labelX, labelY) {
+            ctx.strokeStyle = "rgba(0, 0, 0, 0.5)";
+            ctx.fillStyle = "#00231B";
+            ctx.font = "bold 12px 'Times New Roman'";
+            ctx.lineWidth = 1;
+
+            // Y-axis
+            ctx.beginPath();
+            ctx.moveTo(30, 0);
+            ctx.lineTo(30, height - 20); // Stop at X-axis
+            ctx.stroke();
+            ctx.fillText(labelY, 3, 15);
+
+            // X-axis
+            ctx.beginPath();
+            ctx.moveTo(30, height - 20);
+            ctx.lineTo(width, height - 20);
+            ctx.stroke();
+            ctx.fillText(labelX, width - 40, height - 5);
+        }
+
         function update() {
+            analyser.getFloatTimeDomainData(buffer);
+            const pitch = autoCorrelate(buffer, audioCtx.sampleRate);
 
-        }
+            if (pitch !== -1) {
+                const { note, cents } = getNote(pitch);
+                document.getElementById('note').innerText = note;
+                document.getElementById('freq').innerText = `${pitch.toFixed(1)} Hz`;
+                document.getElementById('needle').style.left = `${50 + cents}%`;
+            }
+            requestAnimationFrame(update);
+        };
 
-        // Autocorrelation algorithm to find fundamental frequency
+        // // Yin algorithm step 1
+        // function autocorrelation(buf, sampleRate) {
+        //     TAU_MAX = 100
+        //     let r = 0
+        //     let ACF = new Float32Array(TAU_MAX);
+        //     for (let tau = 0; tau < TAU_MAX; tau++) {
+        //         for (let i = 0; i < buf.length; i++) {
+        //             r = r + (buf[i] * buf[i + tau])
+        //         }
+        //     }
+
+        // }
+
         function autoCorrelate(buf, sampleRate) {
+            let size = buf.length;
+            let rms = 0;
+            for (let i = 0; i < size; i++) rms += buf[i] * buf[i];
+            if (Math.sqrt(rms / size) < 0.01) return -1; // Too quiet
 
+            let r1 = 0, r2 = size - 1, thres = 0.2;
+            for (let i = 0; i < size / 2; i++) {
+                if (Math.abs(buf[i]) < thres) { r1 = i; break; }
+            }
+            for (let i = 1; i < size / 2; i++) {
+                if (Math.abs(buf[size - i]) < thres) { r2 = size - i; break; }
+            }
+
+            buf = buf.slice(r1, r2);
+            size = buf.length;
+
+            let c = new Array(size).fill(0);
+            for (let i = 0; i < size; i++) {
+                for (let j = 0; j < size - i; j++) {
+                    c[i] = c[i] + buf[j] * buf[j + i];
+                }
+            }
+
+            let d = 0; while (c[d] > c[d + 1]) d++;
+            let maxval = -1, maxpos = -1;
+            for (let i = d; i < size; i++) {
+                if (c[i] > maxval) { maxval = c[i]; maxpos = i; }
+            }
+
+            return sampleRate / maxpos;
         }
+
+
 
         function getNote(frequency) {
-
+            const j = Math.round(12 * (Math.log(frequency / 440) / Math.log(2)));
+            const noteIndex = (j + 69) % 12;
+            const cents = Math.floor(1200 * Math.log2(frequency / (440 * Math.pow(2, j / 12))));
+            return { note: twelveTET[noteIndex], cents: cents };
         }
     </script>
 </body>
