@@ -280,82 +280,17 @@
 
         We use the following autocorrelation function
         to quantify the similarity between a signal
-        and itself delayed by some lag <math>
-            <mi>τ</mi>
-        </math>.
+        and itself delayed by some lag \(\tau\).
 
-        <math display="block" class="tml-display" style="display:block math;">
-            <mrow>
-                <msub>
-                    <mi>r</mi>
-                    <mi>t</mi>
-                </msub>
-                <mrow>
-                    <mo fence="true" form="prefix" stretchy="false">(</mo>
-                    <mi>τ</mi>
-                    <mo fence="true" form="postfix" stretchy="false">)</mo>
-                </mrow>
-                <mo>=</mo>
-                <mrow>
-                    <munderover>
-                        <mo movablelimits="false">∑</mo>
-                        <mrow>
-                            <mi>j</mi>
-                            <mo>=</mo>
-                            <mi>t</mi>
-                            <mo>+</mo>
-                            <mn>1</mn>
-                        </mrow>
-                        <mrow>
-                            <mi>t</mi>
-                            <mo>+</mo>
-                            <mi>W</mi>
-                            <mo>−</mo>
-                            <mi>τ</mi>
-                        </mrow>
-                    </munderover>
-                </mrow>
-                <msub>
-                    <mi>x</mi>
-                    <mi>j</mi>
-                </msub>
-                <msub>
-                    <mi>x</mi>
-                    <mrow>
-                        <mi>j</mi>
-                        <mo>+</mo>
-                        <mi>τ</mi>
-                    </mrow>
-                </msub>
-            </mrow>
-        </math>
+        $$ r_{t} ( \tau ) = \sum_{j = t + 1}^{t + W - \tau} x_{j} x_{j + \tau}$$
 
-        Here, <math>
-            <mrow>
-                <msub>
-                    <mi>r</mi>
-                    <mi>t</mi>
-                </msub>
-                <mrow>
-                    <mo fence="true" form="prefix" stretchy="false">(</mo>
-                    <mi>τ</mi>
-                    <mo fence="true" form="postfix" stretchy="false">)</mo>
-                </mrow>
-            </mrow>
-        </math> is the autocorrelation function at the time intex <math>
-            <mi>t</mi>
-        </math>, with a lag of <math>
-            <mi>τ</mi>
-        </math>. <math>
-            <mi>W</mi>
-        </math> is the integration window size, or the time frame in consideration.
-        We subtract <math>
-            <mi>τ</mi>
-        </math> from the upper summation bound to lessen the effect of larger lag sizes,
+
+        Here, \(r_t(\tau)\) is the autocorrelation function 
+        at the time intex \(t\), with a lag of \(\tau\). 
+        \(W\) is the integration window size, or the time frame in consideration.
+        We subtract \(\tau\) from the upper summation bound to lessen the effect of larger lag sizes,
         with the assumption that the
-        fundemental frequency is closer to the origin point <math>
-            <mi>t</mi>
-        </math>.
+        fundemental frequency is closer to the origin point \(t\).
         <br>
         <br>
         The Weiner-Khinchin theorem (in the discrete time case) allows us to compute the autocorrelation funtion using a
@@ -364,1171 +299,133 @@
 
         To get to this new and convenient definition of the autocorrelation function,
         we can start by taking the Fourier
-        transform <math>
-            <mrow>
-                <mi class="mathcal">ℱ</mi>
-                <mrow>
-                    <mo fence="true" form="prefix" stretchy="false">{</mo>
-                    <mi>r</mi>
-                    <mrow>
-                        <mo fence="true" form="prefix" stretchy="false">(</mo>
-                        <mi>τ</mi>
-                        <mo fence="true" form="postfix" stretchy="false">)</mo>
-                    </mrow>
-                    <mo fence="true" form="postfix" stretchy="false">}</mo>
-                </mrow>
-                <mrow>
-                    <mo fence="true" form="prefix" stretchy="false">(</mo>
-                    <mi>ξ</mi>
-                    <mo fence="true" form="postfix" stretchy="false">)</mo>
-                </mrow>
-            </mrow>
-        </math> of <math>
-            <mrow>
-                <mi>r</mi>
-                <mrow>
-                    <mo fence="true" form="prefix" stretchy="false">(</mo>
-                    <mi>τ</mi>
-                    <mo fence="true" form="postfix" stretchy="false">)</mo>
-                </mrow>
-            </mrow>
-        </math>. We will use the continuous forms of functions to show these conversions.
+        transform \(\mathcal{F}\{r(\tau)\}(\xi)\) of \(r(\tau)\). 
+        We will use the continuous forms of functions to show these conversions.
         <br>
         A continuous version of our autocorrelation is
-        <math display="block" class="tml-display" style="display:block math;">
-            <mrow>
-                <mi>r</mi>
-                <mrow>
-                    <mo fence="true" form="prefix" stretchy="false">(</mo>
-                    <mi>τ</mi>
-                    <mo fence="true" form="postfix" stretchy="false">)</mo>
-                </mrow>
-                <mo>=</mo>
-                <msubsup>
-                    <mo movablelimits="false">∫</mo>
-                    <mrow>
-                        <mo form="prefix" stretchy="false" lspace="0em" rspace="0em">−</mo>
-                        <mi>∞</mi>
-                    </mrow>
-                    <mi>∞</mi>
-                </msubsup>
-                <mi>x</mi>
-                <mrow>
-                    <mo fence="true" form="prefix" stretchy="false">(</mo>
-                    <mi>t</mi>
-                    <mo fence="true" form="postfix" stretchy="false">)</mo>
-                </mrow>
-                <mi>x</mi>
-                <mrow>
-                    <mo fence="true" form="prefix" stretchy="false">(</mo>
-                    <mi>t</mi>
-                    <mo>+</mo>
-                    <mi>τ</mi>
-                    <mo fence="true" form="postfix" stretchy="false">)</mo>
-                </mrow>
-                <mi>d</mi>
-                <mi>t</mi>
-            </mrow>
-        </math>
+
+        $$
+        r(\tau) = \int_{-\infty}^{\infty} x(t)x(t + \tau)dt
+        $$
 
         and its Fourier transform is
-        <math display="block" class="tml-display" style="display:block math;">
-            <mrow>
-                <mi class="mathcal">ℱ</mi>
-                <mrow>
-                    <mo fence="true" form="prefix" stretchy="false">{</mo>
-                    <mi>r</mi>
-                    <mrow>
-                        <mo fence="true" form="prefix" stretchy="false">(</mo>
-                        <mi>τ</mi>
-                        <mo fence="true" form="postfix" stretchy="false">)</mo>
-                    </mrow>
-                    <mo fence="true" form="postfix" stretchy="false">}</mo>
-                </mrow>
-                <mrow>
-                    <mo fence="true" form="prefix" stretchy="false">(</mo>
-                    <mi>ξ</mi>
-                    <mo fence="true" form="postfix" stretchy="false">)</mo>
-                </mrow>
-                <mo>=</mo>
-                <msubsup>
-                    <mo movablelimits="false">∫</mo>
-                    <mrow>
-                        <mo form="prefix" stretchy="false" lspace="0em" rspace="0em">−</mo>
-                        <mi>∞</mi>
-                    </mrow>
-                    <mi>∞</mi>
-                </msubsup>
-                <mi>r</mi>
-                <mrow>
-                    <mo fence="true" form="prefix" stretchy="false">(</mo>
-                    <mi>τ</mi>
-                    <mo fence="true" form="postfix" stretchy="false">)</mo>
-                </mrow>
-                <msup>
-                    <mi>e</mi>
-                    <mrow class="tml-sml-pad">
-                        <mo form="prefix" stretchy="false" lspace="0em" rspace="0em">−</mo>
-                        <mi>i</mi>
-                        <mn>2</mn>
-                        <mi>π</mi>
-                        <mi>ξ</mi>
-                        <mi>τ</mi>
-                    </mrow>
-                </msup>
-                <mi>d</mi>
-                <mi>τ</mi>
-            </mrow>
-        </math>
 
-        Let's substitue in <math>
-            <mrow>
-                <mi>r</mi>
-                <mrow>
-                    <mo fence="true" form="prefix" stretchy="false">(</mo>
-                    <mi>τ</mi>
-                    <mo fence="true" form="postfix" stretchy="false">)</mo>
-                </mrow>
-            </mrow>
-        </math>
+        $$
+        \mathcal{F}\{r(\tau)\}(\xi) = \int_{-\infty}^{\infty}r(\tau)e^{-i2\pi\xi\tau}d\tau
+        $$
+      
+
+        Let's substitue in \(r(\tau)\) 
         and swap the order of integration by Fubini's theorem.
 
-        <math display="block" class="tml-display" style="display:block math;">
-            <mtable displaystyle="true" class="tml-jot">
-                <mtr>
-                    <mtd class="tml-right" style="padding-left:0em;padding-right:0em;">
-                        <mrow>
-                            <mi class="mathcal">ℱ</mi>
-                            <mrow>
-                                <mo fence="true" form="prefix" stretchy="false">{</mo>
-                                <mi>r</mi>
-                                <mrow>
-                                    <mo fence="true" form="prefix" stretchy="false">(</mo>
-                                    <mi>τ</mi>
-                                    <mo fence="true" form="postfix" stretchy="false">)</mo>
-                                </mrow>
-                                <mo fence="true" form="postfix" stretchy="false">}</mo>
-                            </mrow>
-                            <mrow>
-                                <mo fence="true" form="prefix" stretchy="false">(</mo>
-                                <mi>ξ</mi>
-                                <mo fence="true" form="postfix" stretchy="false">)</mo>
-                            </mrow>
-                        </mrow>
-                    </mtd>
-                    <mtd class="tml-left" style="padding-left:0em;padding-right:0em;">
-                        <mrow>
-                            <mo>=</mo>
-                            <msubsup>
-                                <mo movablelimits="false">∫</mo>
-                                <mrow>
-                                    <mo form="prefix" stretchy="false" lspace="0em" rspace="0em">−</mo>
-                                    <mi>∞</mi>
-                                </mrow>
-                                <mi>∞</mi>
-                            </msubsup>
-                            <mrow>
-                                <mo fence="true" form="prefix" stretchy="true">[</mo>
-                                <msubsup>
-                                    <mo movablelimits="false">∫</mo>
-                                    <mrow>
-                                        <mo form="prefix" stretchy="false" lspace="0em" rspace="0em">−</mo>
-                                        <mi>∞</mi>
-                                    </mrow>
-                                    <mi>∞</mi>
-                                </msubsup>
-                                <mi>x</mi>
-                                <mrow>
-                                    <mo fence="true" form="prefix" stretchy="false">(</mo>
-                                    <mi>t</mi>
-                                    <mo fence="true" form="postfix" stretchy="false">)</mo>
-                                </mrow>
-                                <mi>x</mi>
-                                <mrow>
-                                    <mo fence="true" form="prefix" stretchy="false">(</mo>
-                                    <mi>t</mi>
-                                    <mo>+</mo>
-                                    <mi>τ</mi>
-                                    <mo fence="true" form="postfix" stretchy="false">)</mo>
-                                </mrow>
-                                <mi>d</mi>
-                                <mi>t</mi>
-                                <mo fence="true" form="postfix" stretchy="true">]</mo>
-                            </mrow>
-                            <msup>
-                                <mi>e</mi>
-                                <mrow class="tml-sml-pad">
-                                    <mo form="prefix" stretchy="false" lspace="0em" rspace="0em">−</mo>
-                                    <mi>i</mi>
-                                    <mn>2</mn>
-                                    <mi>π</mi>
-                                    <mi>ξ</mi>
-                                    <mi>τ</mi>
-                                </mrow>
-                            </msup>
-                            <mi>d</mi>
-                            <mi>τ</mi>
-                        </mrow>
-                    </mtd>
-                </mtr>
-                <mtr>
-                    <mtd class="tml-right" style="padding-left:0em;padding-right:0em;">
-                        <mrow></mrow>
-                    </mtd>
-                    <mtd class="tml-left" style="padding-left:0em;padding-right:0em;">
-                        <mrow>
-                            <mo>=</mo>
-                            <msubsup>
-                                <mo movablelimits="false">∫</mo>
-                                <mrow>
-                                    <mo form="prefix" stretchy="false" lspace="0em" rspace="0em">−</mo>
-                                    <mi>∞</mi>
-                                </mrow>
-                                <mi>∞</mi>
-                            </msubsup>
-                            <msubsup>
-                                <mo movablelimits="false">∫</mo>
-                                <mrow>
-                                    <mo form="prefix" stretchy="false" lspace="0em" rspace="0em">−</mo>
-                                    <mi>∞</mi>
-                                </mrow>
-                                <mi>∞</mi>
-                            </msubsup>
-                            <mi>x</mi>
-                            <mrow>
-                                <mo fence="true" form="prefix" stretchy="false">(</mo>
-                                <mi>t</mi>
-                                <mo fence="true" form="postfix" stretchy="false">)</mo>
-                            </mrow>
-                            <mi>x</mi>
-                            <mrow>
-                                <mo fence="true" form="prefix" stretchy="false">(</mo>
-                                <mi>t</mi>
-                                <mo>+</mo>
-                                <mi>τ</mi>
-                                <mo fence="true" form="postfix" stretchy="false">)</mo>
-                            </mrow>
-                            <msup>
-                                <mi>e</mi>
-                                <mrow class="tml-sml-pad">
-                                    <mo form="prefix" stretchy="false" lspace="0em" rspace="0em">−</mo>
-                                    <mi>i</mi>
-                                    <mn>2</mn>
-                                    <mi>π</mi>
-                                    <mi>ξ</mi>
-                                    <mi>τ</mi>
-                                </mrow>
-                            </msup>
-                            <mi>d</mi>
-                            <mi>τ</mi>
-                            <mi>d</mi>
-                            <mi>t</mi>
-                        </mrow>
-                    </mtd>
-                </mtr>
-                <mtr>
-                    <mtd class="tml-right" style="padding-left:0em;padding-right:0em;">
-                        <mrow></mrow>
-                    </mtd>
-                    <mtd class="tml-left" style="padding-left:0em;padding-right:0em;">
-                        <mrow>
-                            <mo>=</mo>
-                            <msubsup>
-                                <mo movablelimits="false">∫</mo>
-                                <mrow>
-                                    <mo form="prefix" stretchy="false" lspace="0em" rspace="0em">−</mo>
-                                    <mi>∞</mi>
-                                </mrow>
-                                <mi>∞</mi>
-                            </msubsup>
-                            <mi>x</mi>
-                            <mrow>
-                                <mo fence="true" form="prefix" stretchy="false">(</mo>
-                                <mi>t</mi>
-                                <mo fence="true" form="postfix" stretchy="false">)</mo>
-                            </mrow>
-                            <msubsup>
-                                <mo movablelimits="false">∫</mo>
-                                <mrow>
-                                    <mo form="prefix" stretchy="false" lspace="0em" rspace="0em">−</mo>
-                                    <mi>∞</mi>
-                                </mrow>
-                                <mi>∞</mi>
-                            </msubsup>
-                            <mi>x</mi>
-                            <mrow>
-                                <mo fence="true" form="prefix" stretchy="false">(</mo>
-                                <mi>t</mi>
-                                <mo>+</mo>
-                                <mi>τ</mi>
-                                <mo fence="true" form="postfix" stretchy="false">)</mo>
-                            </mrow>
-                            <msup>
-                                <mi>e</mi>
-                                <mrow class="tml-sml-pad">
-                                    <mo form="prefix" stretchy="false" lspace="0em" rspace="0em">−</mo>
-                                    <mi>i</mi>
-                                    <mn>2</mn>
-                                    <mi>π</mi>
-                                    <mi>ξ</mi>
-                                    <mi>τ</mi>
-                                </mrow>
-                            </msup>
-                            <mi>d</mi>
-                            <mi>τ</mi>
-                            <mi>d</mi>
-                            <mi>t</mi>
-                        </mrow>
-                    </mtd>
-                </mtr>
-            </mtable>
-        </math>
+        $$
+        \begin{align*} 
+            \mathcal{F}\{r(\tau)\}(\xi) &= \int_{-\infty}^{\infty}\left[\int_{-\infty}^{\infty} x(t)x(t + \tau)dt\right]e^{-i2\pi\xi\tau}d\tau \\
+            &= \int_{-\infty}^{\infty}\int_{-\infty}^{\infty} x(t)x(t + \tau)e^{-i2\pi\xi\tau}d\tau dt \\
+            &= \int_{-\infty}^{\infty}x(t)\int_{-\infty}^{\infty} x(t + \tau)e^{-i2\pi\xi\tau}d\tau dt
+        \end{align*}
+        $$
 
-        If we define and substitue in <math>
-            <mrow>
-                <mi>u</mi>
-                <mo>=</mo>
-                <mi>t</mi>
-                <mo>+</mo>
-                <mi>τ</mi>
-            </mrow>
-        </math>, we can see that the inner integral can be represented as a Fourier transform of <math>
-            <mi>x</mi>
-        </math> and an exponent.
-        <math display="block" class="tml-display" style="display:block math;">
-            <mtable displaystyle="true" class="tml-jot">
-                <mtr>
-                    <mtd class="tml-right" style="padding-left:0em;padding-right:0em;">
-                        <mrow>
-                            <msubsup>
-                                <mo movablelimits="false">∫</mo>
-                                <mrow>
-                                    <mo form="prefix" stretchy="false" lspace="0em" rspace="0em">−</mo>
-                                    <mi>∞</mi>
-                                </mrow>
-                                <mi>∞</mi>
-                            </msubsup>
-                            <mi>x</mi>
-                            <mrow>
-                                <mo fence="true" form="prefix" stretchy="false">(</mo>
-                                <mi>t</mi>
-                                <mo>+</mo>
-                                <mi>τ</mi>
-                                <mo fence="true" form="postfix" stretchy="false">)</mo>
-                            </mrow>
-                            <msup>
-                                <mi>e</mi>
-                                <mrow class="tml-sml-pad">
-                                    <mo form="prefix" stretchy="false" lspace="0em" rspace="0em">−</mo>
-                                    <mi>i</mi>
-                                    <mn>2</mn>
-                                    <mi>π</mi>
-                                    <mi>ξ</mi>
-                                    <mi>τ</mi>
-                                </mrow>
-                            </msup>
-                            <mi>d</mi>
-                            <mi>τ</mi>
-                        </mrow>
-                    </mtd>
-                    <mtd class="tml-left" style="padding-left:0em;padding-right:0em;">
-                        <mrow>
-                            <mo>=</mo>
-                            <msubsup>
-                                <mo movablelimits="false">∫</mo>
-                                <mrow>
-                                    <mo form="prefix" stretchy="false" lspace="0em" rspace="0em">−</mo>
-                                    <mi>∞</mi>
-                                </mrow>
-                                <mi>∞</mi>
-                            </msubsup>
-                            <mi>x</mi>
-                            <mrow>
-                                <mo fence="true" form="prefix" stretchy="false">(</mo>
-                                <mi>u</mi>
-                                <mo fence="true" form="postfix" stretchy="false">)</mo>
-                            </mrow>
-                            <msup>
-                                <mi>e</mi>
-                                <mrow class="tml-sml-pad">
-                                    <mo form="prefix" stretchy="false" lspace="0em" rspace="0em">−</mo>
-                                    <mi>i</mi>
-                                    <mn>2</mn>
-                                    <mi>π</mi>
-                                    <mi>ξ</mi>
-                                    <mrow>
-                                        <mo fence="true" form="prefix" stretchy="false">(</mo>
-                                        <mi>u</mi>
-                                        <mo>−</mo>
-                                        <mi>t</mi>
-                                        <mo fence="true" form="postfix" stretchy="false">)</mo>
-                                    </mrow>
-                                </mrow>
-                            </msup>
-                            <mi>d</mi>
-                            <mi>u</mi>
-                        </mrow>
-                    </mtd>
-                </mtr>
-                <mtr>
-                    <mtd class="tml-right" style="padding-left:0em;padding-right:0em;">
-                        <mrow></mrow>
-                    </mtd>
-                    <mtd class="tml-left" style="padding-left:0em;padding-right:0em;">
-                        <mrow>
-                            <mo>=</mo>
-                            <msup>
-                                <mi>e</mi>
-                                <mrow class="tml-sml-pad">
-                                    <mi>i</mi>
-                                    <mn>2</mn>
-                                    <mi>π</mi>
-                                    <mi>ξ</mi>
-                                    <mi>t</mi>
-                                </mrow>
-                            </msup>
-                            <msubsup>
-                                <mo movablelimits="false">∫</mo>
-                                <mrow>
-                                    <mo form="prefix" stretchy="false" lspace="0em" rspace="0em">−</mo>
-                                    <mi>∞</mi>
-                                </mrow>
-                                <mi>∞</mi>
-                            </msubsup>
-                            <mi>x</mi>
-                            <mrow>
-                                <mo fence="true" form="prefix" stretchy="false">(</mo>
-                                <mi>u</mi>
-                                <mo fence="true" form="postfix" stretchy="false">)</mo>
-                            </mrow>
-                            <msup>
-                                <mi>e</mi>
-                                <mrow class="tml-sml-pad">
-                                    <mo form="prefix" stretchy="false" lspace="0em" rspace="0em">−</mo>
-                                    <mi>i</mi>
-                                    <mn>2</mn>
-                                    <mi>π</mi>
-                                    <mi>ξ</mi>
-                                    <mrow>
-                                        <mo fence="true" form="prefix" stretchy="false">(</mo>
-                                        <mi>u</mi>
-                                        <mo fence="true" form="postfix" stretchy="false">)</mo>
-                                    </mrow>
-                                </mrow>
-                            </msup>
-                            <mi>d</mi>
-                            <mi>u</mi>
-                        </mrow>
-                    </mtd>
-                </mtr>
-                <mtr>
-                    <mtd class="tml-right" style="padding-left:0em;padding-right:0em;">
-                        <mrow></mrow>
-                    </mtd>
-                    <mtd class="tml-left" style="padding-left:0em;padding-right:0em;">
-                        <mrow>
-                            <mo>=</mo>
-                            <msup>
-                                <mi>e</mi>
-                                <mrow class="tml-sml-pad">
-                                    <mi>i</mi>
-                                    <mn>2</mn>
-                                    <mi>π</mi>
-                                    <mi>ξ</mi>
-                                    <mi>t</mi>
-                                </mrow>
-                            </msup>
-                            <mi class="mathcal">ℱ</mi>
-                            <mrow>
-                                <mo fence="true" form="prefix" stretchy="false">{</mo>
-                                <mi>x</mi>
-                                <mo fence="true" form="postfix" stretchy="false">}</mo>
-                            </mrow>
-                            <mrow>
-                                <mo fence="true" form="prefix" stretchy="false">(</mo>
-                                <mi>ξ</mi>
-                                <mo fence="true" form="postfix" stretchy="false">)</mo>
-                            </mrow>
-                        </mrow>
-                    </mtd>
-                </mtr>
-            </mtable>
-        </math>
+    
+
+        If we define and substitue in \(u=t+\tau\), 
+        we can see that the inner integral can be represented as a Fourier transform 
+        of \(x\) multiplied by an exponent.
+
+        $$
+        \begin{align*}
+            \int_{-\infty}^{\infty} x(t + \tau)e^{-i2\pi\xi\tau}d\tau &= \int_{-\infty}^{\infty} x(u)e^{-i2\pi\xi(u-t)}du \\
+            &= e^{i2\pi\xi t}\int_{-\infty}^{\infty} x(u)e^{-i2\pi\xi u}du \\
+            &= e^{i2\pi\xi t}\mathcal{F}\{x\}(\xi)
+        \end{align*}
+        $$
+
 
         Subsituting this back in, we get
 
+        $$
+       \begin{align*}
+            \mathcal{F}\{r(\tau)\}(\xi) &= \int_{-\infty}^{\infty} x(t)e^{i2\pi\xi t}\mathcal{F}\{x\}(\xi)dt \\
+            &= \mathcal{F}\{x\}(\xi)\int_{-\infty}^{\infty} x(t)e^{i2\pi\xi t}dt 
+        \end{align*}
+        $$
 
 
-        <math display="block" class="tml-display" style="display:block math;">
-            <mtable displaystyle="true" class="tml-jot">
-                <mtr>
-                    <mtd class="tml-right" style="padding-left:0em;padding-right:0em;">
-                        <mrow>
-                            <mi class="mathcal">ℱ</mi>
-                            <mrow>
-                                <mo fence="true" form="prefix" stretchy="false">{</mo>
-                                <mi>r</mi>
-                                <mrow>
-                                    <mo fence="true" form="prefix" stretchy="false">(</mo>
-                                    <mi>τ</mi>
-                                    <mo fence="true" form="postfix" stretchy="false">)</mo>
-                                </mrow>
-                                <mo fence="true" form="postfix" stretchy="false">}</mo>
-                            </mrow>
-                            <mrow>
-                                <mo fence="true" form="prefix" stretchy="false">(</mo>
-                                <mi>ξ</mi>
-                                <mo fence="true" form="postfix" stretchy="false">)</mo>
-                            </mrow>
-                        </mrow>
-                    </mtd>
-                    <mtd class="tml-left" style="padding-left:0em;padding-right:0em;">
-                        <mrow>
-                            <mo>=</mo>
-                            <msubsup>
-                                <mo movablelimits="false">∫</mo>
-                                <mrow>
-                                    <mo form="prefix" stretchy="false" lspace="0em" rspace="0em">−</mo>
-                                    <mi>∞</mi>
-                                </mrow>
-                                <mi>∞</mi>
-                            </msubsup>
-                            <mi>x</mi>
-                            <mrow>
-                                <mo fence="true" form="prefix" stretchy="false">(</mo>
-                                <mi>t</mi>
-                                <mo fence="true" form="postfix" stretchy="false">)</mo>
-                            </mrow>
-                            <msup>
-                                <mi>e</mi>
-                                <mrow class="tml-sml-pad">
-                                    <mi>i</mi>
-                                    <mn>2</mn>
-                                    <mi>π</mi>
-                                    <mi>ξ</mi>
-                                    <mi>t</mi>
-                                </mrow>
-                            </msup>
-                            <mi class="mathcal">ℱ</mi>
-                            <mrow>
-                                <mo fence="true" form="prefix" stretchy="false">{</mo>
-                                <mi>x</mi>
-                                <mo fence="true" form="postfix" stretchy="false">}</mo>
-                            </mrow>
-                            <mrow>
-                                <mo fence="true" form="prefix" stretchy="false">(</mo>
-                                <mi>ξ</mi>
-                                <mo fence="true" form="postfix" stretchy="false">)</mo>
-                            </mrow>
-                            <mi>d</mi>
-                            <mi>t</mi>
-                        </mrow>
-                    </mtd>
-                </mtr>
-                <mtr>
-                    <mtd class="tml-right" style="padding-left:0em;padding-right:0em;">
-                        <mrow></mrow>
-                    </mtd>
-                    <mtd class="tml-left" style="padding-left:0em;padding-right:0em;">
-                        <mrow>
-                            <mo>=</mo>
-                            <mi class="mathcal">ℱ</mi>
-                            <mrow>
-                                <mo fence="true" form="prefix" stretchy="false">{</mo>
-                                <mi>x</mi>
-                                <mo fence="true" form="postfix" stretchy="false">}</mo>
-                            </mrow>
-                            <mrow>
-                                <mo fence="true" form="prefix" stretchy="false">(</mo>
-                                <mi>ξ</mi>
-                                <mo fence="true" form="postfix" stretchy="false">)</mo>
-                            </mrow>
-                            <msubsup>
-                                <mo movablelimits="false">∫</mo>
-                                <mrow>
-                                    <mo form="prefix" stretchy="false" lspace="0em" rspace="0em">−</mo>
-                                    <mi>∞</mi>
-                                </mrow>
-                                <mi>∞</mi>
-                            </msubsup>
-                            <mi>x</mi>
-                            <mrow>
-                                <mo fence="true" form="prefix" stretchy="false">(</mo>
-                                <mi>t</mi>
-                                <mo fence="true" form="postfix" stretchy="false">)</mo>
-                            </mrow>
-                            <msup>
-                                <mi>e</mi>
-                                <mrow class="tml-sml-pad">
-                                    <mi>i</mi>
-                                    <mn>2</mn>
-                                    <mi>π</mi>
-                                    <mi>ξ</mi>
-                                    <mi>t</mi>
-                                </mrow>
-                            </msup>
-                            <mi>d</mi>
-                            <mi>t</mi>
-                        </mrow>
-                    </mtd>
-                </mtr>
-            </mtable>
-        </math>
 
         We may notice that
-        <math display="block" class="tml-display" style="display:block math;">
-            <mrow>
-                <msubsup>
-                    <mo movablelimits="false">∫</mo>
-                    <mrow>
-                        <mo form="prefix" stretchy="false" lspace="0em" rspace="0em">−</mo>
-                        <mi>∞</mi>
-                    </mrow>
-                    <mi>∞</mi>
-                </msubsup>
-                <mi>x</mi>
-                <mrow>
-                    <mo fence="true" form="prefix" stretchy="false">(</mo>
-                    <mi>t</mi>
-                    <mo fence="true" form="postfix" stretchy="false">)</mo>
-                </mrow>
-                <msup>
-                    <mi>e</mi>
-                    <mrow class="tml-sml-pad">
-                        <mi>i</mi>
-                        <mn>2</mn>
-                        <mi>π</mi>
-                        <mi>ξ</mi>
-                        <mi>t</mi>
-                    </mrow>
-                </msup>
-                <mi>d</mi>
-                <mi>t</mi>
-                <mo>=</mo>
-                <mi class="mathcal">ℱ</mi>
-                <mrow>
-                    <mo fence="true" form="prefix" stretchy="false">{</mo>
-                    <mi>x</mi>
-                    <mo fence="true" form="postfix" stretchy="false">}</mo>
-                </mrow>
-                <mrow>
-                    <mo fence="true" form="prefix" stretchy="false">(</mo>
-                    <mo form="prefix" stretchy="false">−</mo>
-                    <mi>ξ</mi>
-                    <mo fence="true" form="postfix" stretchy="false">)</mo>
-                </mrow>
-            </mrow>
-        </math>
+
+        $$
+        \int_{-\infty}^{\infty}x(t)e^{i2\pi\xi t}dt = \mathcal{F}\{x\}(-\xi) 
+        $$
 
         giving us
 
-        <math display="block" class="tml-display" style="display:block math;">
-            <mrow>
-                <mi class="mathcal">ℱ</mi>
-                <mrow>
-                    <mo fence="true" form="prefix" stretchy="false">{</mo>
-                    <mi>r</mi>
-                    <mrow>
-                        <mo fence="true" form="prefix" stretchy="false">(</mo>
-                        <mi>τ</mi>
-                        <mo fence="true" form="postfix" stretchy="false">)</mo>
-                    </mrow>
-                    <mo fence="true" form="postfix" stretchy="false">}</mo>
-                </mrow>
-                <mrow>
-                    <mo fence="true" form="prefix" stretchy="false">(</mo>
-                    <mo form="prefix" stretchy="false">−</mo>
-                    <mi>ξ</mi>
-                    <mo fence="true" form="postfix" stretchy="false">)</mo>
-                </mrow>
-                <mo>=</mo>
-                <mi class="mathcal">ℱ</mi>
-                <mrow>
-                    <mo fence="true" form="prefix" stretchy="false">{</mo>
-                    <mi>x</mi>
-                    <mo fence="true" form="postfix" stretchy="false">}</mo>
-                </mrow>
-                <mrow>
-                    <mo fence="true" form="prefix" stretchy="false">(</mo>
-                    <mi>ξ</mi>
-                    <mo fence="true" form="postfix" stretchy="false">)</mo>
-                </mrow>
-                <mi class="mathcal">ℱ</mi>
-                <mrow>
-                    <mo fence="true" form="prefix" stretchy="false">{</mo>
-                    <mi>x</mi>
-                    <mo fence="true" form="postfix" stretchy="false">}</mo>
-                </mrow>
-                <mrow>
-                    <mo fence="true" form="prefix" stretchy="false">(</mo>
-                    <mo form="prefix" stretchy="false">−</mo>
-                    <mi>ξ</mi>
-                    <mo fence="true" form="postfix" stretchy="false">)</mo>
-                </mrow>
-            </mrow>
-        </math>
+        $$
+         \mathcal{F}\{r(\tau)\}(\xi) =  \mathcal{F}\{x\}(\xi)  \mathcal{F}\{x\}(-\xi)
+        $$
 
-        And because for real <math>
-            <mi>x</mi>
-        </math>, the Fourier transform at a negated frequency is the complex conjugate of the Fourier transform at the
+        And because for real \(x\), 
+        the Fourier transform at a negated frequency 
+        is the complex conjugate of the Fourier transform at the
         non-negated frequency, we get
 
-
-        <math display="block" class="tml-display" style="display:block math;">
-            <mrow>
-                <mi class="mathcal">ℱ</mi>
-                <mrow>
-                    <mo fence="true" form="prefix" stretchy="false">{</mo>
-                    <mi>x</mi>
-                    <mo fence="true" form="postfix" stretchy="false">}</mo>
-                </mrow>
-                <mrow>
-                    <mo fence="true" form="prefix" stretchy="false">(</mo>
-                    <mo form="prefix" stretchy="false">−</mo>
-                    <mi>ξ</mi>
-                    <mo fence="true" form="postfix" stretchy="false">)</mo>
-                </mrow>
-                <mo>=</mo>
-                <menclose notation="top" class="tml-overline">
-                    <mrow>
-                        <mi class="mathcal">ℱ</mi>
-                        <mrow>
-                            <mo fence="true" form="prefix" stretchy="false">{</mo>
-                            <mi>x</mi>
-                            <mo fence="true" form="postfix" stretchy="false">}</mo>
-                        </mrow>
-                        <mrow>
-                            <mo fence="true" form="prefix" stretchy="false">(</mo>
-                            <mi>ξ</mi>
-                            <mo fence="true" form="postfix" stretchy="false">)</mo>
-                        </mrow>
-                    </mrow>
-                </menclose>
-            </mrow>
-        </math>
+        $$
+        \mathcal{F}\{x\}(-\xi) = \overline{\mathcal{F}\{x\}(\xi)}
+        $$
 
         Therefore,
-        <math display="block" class="tml-display" style="display:block math;">
-            <mtable displaystyle="true" class="tml-jot">
-                <mtr>
-                    <mtd class="tml-right" style="padding-left:0em;padding-right:0em;">
-                        <mrow>
-                            <mi class="mathcal">ℱ</mi>
-                            <mrow>
-                                <mo fence="true" form="prefix" stretchy="false">{</mo>
-                                <mi>r</mi>
-                                <mrow>
-                                    <mo fence="true" form="prefix" stretchy="false">(</mo>
-                                    <mi>τ</mi>
-                                    <mo fence="true" form="postfix" stretchy="false">)</mo>
-                                </mrow>
-                                <mo fence="true" form="postfix" stretchy="false">}</mo>
-                            </mrow>
-                            <mrow>
-                                <mo fence="true" form="prefix" stretchy="false">(</mo>
-                                <mi>ξ</mi>
-                                <mo fence="true" form="postfix" stretchy="false">)</mo>
-                            </mrow>
-                        </mrow>
-                    </mtd>
-                    <mtd class="tml-left" style="padding-left:0em;padding-right:0em;">
-                        <mrow>
-                            <mo>=</mo>
-                            <mi class="mathcal">ℱ</mi>
-                            <mrow>
-                                <mo fence="true" form="prefix" stretchy="false">{</mo>
-                                <mi>x</mi>
-                                <mrow>
-                                    <mo fence="true" form="prefix" stretchy="false">(</mo>
-                                    <mi>τ</mi>
-                                    <mo fence="true" form="postfix" stretchy="false">)</mo>
-                                </mrow>
-                                <mo fence="true" form="postfix" stretchy="false">}</mo>
-                            </mrow>
-                            <mrow>
-                                <mo fence="true" form="prefix" stretchy="false">(</mo>
-                                <mi>ξ</mi>
-                                <mo fence="true" form="postfix" stretchy="false">)</mo>
-                            </mrow>
-                            <mi class="mathcal">ℱ</mi>
-                            <mrow>
-                                <mo fence="true" form="prefix" stretchy="false">{</mo>
-                                <mi>x</mi>
-                                <mo fence="true" form="postfix" stretchy="false">}</mo>
-                            </mrow>
-                            <mrow>
-                                <mo fence="true" form="prefix" stretchy="false">(</mo>
-                                <mo form="prefix" stretchy="false">−</mo>
-                                <mi>ξ</mi>
-                                <mo fence="true" form="postfix" stretchy="false">)</mo>
-                            </mrow>
-                        </mrow>
-                    </mtd>
-                </mtr>
-                <mtr>
-                    <mtd class="tml-right" style="padding-left:0em;padding-right:0em;">
-                        <mrow></mrow>
-                    </mtd>
-                    <mtd class="tml-left" style="padding-left:0em;padding-right:0em;">
-                        <mrow>
-                            <mo>=</mo>
-                            <mi class="mathcal">ℱ</mi>
-                            <mrow>
-                                <mo fence="true" form="prefix" stretchy="false">{</mo>
-                                <mi>x</mi>
-                                <mo fence="true" form="postfix" stretchy="false">}</mo>
-                            </mrow>
-                            <mrow>
-                                <mo fence="true" form="prefix" stretchy="false">(</mo>
-                                <mi>ξ</mi>
-                                <mo fence="true" form="postfix" stretchy="false">)</mo>
-                            </mrow>
-                            <menclose notation="top" class="tml-overline">
-                                <mrow>
-                                    <mi class="mathcal">ℱ</mi>
-                                    <mrow>
-                                        <mo fence="true" form="prefix" stretchy="false">{</mo>
-                                        <mi>x</mi>
-                                        <mo fence="true" form="postfix" stretchy="false">}</mo>
-                                    </mrow>
-                                    <mrow>
-                                        <mo fence="true" form="prefix" stretchy="false">(</mo>
-                                        <mi>ξ</mi>
-                                        <mo fence="true" form="postfix" stretchy="false">)</mo>
-                                    </mrow>
-                                </mrow>
-                            </menclose>
-                        </mrow>
-                    </mtd>
-                </mtr>
-                <mtr>
-                    <mtd class="tml-right" style="padding-left:0em;padding-right:0em;">
-                        <mrow></mrow>
-                    </mtd>
-                    <mtd class="tml-left" style="padding-left:0em;padding-right:0em;">
-                        <mrow>
-                            <mo>=</mo>
-                            <mi>|</mi>
-                            <mi class="mathcal">ℱ</mi>
-                            <mrow>
-                                <mo fence="true" form="prefix" stretchy="false">{</mo>
-                                <mi>x</mi>
-                                <mo fence="true" form="postfix" stretchy="false">}</mo>
-                            </mrow>
-                            <mrow>
-                                <mo fence="true" form="prefix" stretchy="false">(</mo>
-                                <mi>ξ</mi>
-                                <mo fence="true" form="postfix" stretchy="false">)</mo>
-                            </mrow>
-                            <msup>
-                                <mi>|</mi>
-                                <mn>2</mn>
-                            </msup>
-                        </mrow>
-                    </mtd>
-                </mtr>
-            </mtable>
-        </math>
+
+        $$
+        \begin{align*}
+            \mathcal{F}\{r(\tau)\}(\xi) &= \mathcal{F}\{x\}(\xi)  \mathcal{F}\{x\}(-\xi) \\
+            &= \mathcal{F}\{x\}(\xi) \overline{\mathcal{F}\{x\}(\xi)} \\
+            &= | \mathcal{F}\{x\}(\xi) |^2
+        \end{align*}
+        $$
 
 
         Using the inverse Fourier transform, we can get the autocorrelation back out, this time with a formulation
         faster to compute.
 
-        <math display="block" class="tml-display" style="display:block math;">
-            <mtable displaystyle="true" class="tml-jot">
-                <mtr>
-                    <mtd class="tml-right" style="padding-left:0em;padding-right:0em;">
-                        <mrow>
-                            <mi>r</mi>
-                            <mrow>
-                                <mo fence="true" form="prefix" stretchy="false">(</mo>
-                                <mi>τ</mi>
-                                <mo fence="true" form="postfix" stretchy="false">)</mo>
-                            </mrow>
-                        </mrow>
-                    </mtd>
-                    <mtd class="tml-left" style="padding-left:0em;padding-right:0em;">
-                        <mrow>
-                            <mo>=</mo>
-                            <msup>
-                                <mi class="mathcal">ℱ</mi>
-                                <mrow>
-                                    <mo form="prefix" stretchy="false" lspace="0em" rspace="0em">−</mo>
-                                    <mn>1</mn>
-                                </mrow>
-                            </msup>
-                            <mrow>
-                                <mo fence="true" form="prefix" stretchy="false">{</mo>
-                                <mi>r</mi>
-                                <mrow>
-                                    <mo fence="true" form="prefix" stretchy="false">(</mo>
-                                    <mi>τ</mi>
-                                    <mo fence="true" form="postfix" stretchy="false">)</mo>
-                                </mrow>
-                                <mo fence="true" form="postfix" stretchy="false">}</mo>
-                            </mrow>
-                            <mrow>
-                                <mo fence="true" form="prefix" stretchy="false">(</mo>
-                                <mi class="mathcal">ℱ</mi>
-                                <mrow>
-                                    <mo fence="true" form="prefix" stretchy="false">{</mo>
-                                    <mi>r</mi>
-                                    <mrow>
-                                        <mo fence="true" form="prefix" stretchy="false">(</mo>
-                                        <mi>τ</mi>
-                                        <mo fence="true" form="postfix" stretchy="false">)</mo>
-                                    </mrow>
-                                    <mo fence="true" form="postfix" stretchy="false">}</mo>
-                                </mrow>
-                                <mrow>
-                                    <mo fence="true" form="prefix" stretchy="false">(</mo>
-                                    <mi>ξ</mi>
-                                    <mo fence="true" form="postfix" stretchy="false">)</mo>
-                                </mrow>
-                                <mo fence="true" form="postfix" stretchy="false">)</mo>
-                            </mrow>
-                        </mrow>
-                    </mtd>
-                </mtr>
-                <mtr>
-                    <mtd class="tml-right" style="padding-left:0em;padding-right:0em;">
-                        <mrow></mrow>
-                    </mtd>
-                    <mtd class="tml-left" style="padding-left:0em;padding-right:0em;">
-                        <mrow>
-                            <mo>=</mo>
-                            <msup>
-                                <mi class="mathcal">ℱ</mi>
-                                <mrow>
-                                    <mo form="prefix" stretchy="false" lspace="0em" rspace="0em">−</mo>
-                                    <mn>1</mn>
-                                </mrow>
-                            </msup>
-                            <mrow>
-                                <mo fence="true" form="prefix" stretchy="false">{</mo>
-                                <mi>r</mi>
-                                <mrow>
-                                    <mo fence="true" form="prefix" stretchy="false">(</mo>
-                                    <mi>τ</mi>
-                                    <mo fence="true" form="postfix" stretchy="false">)</mo>
-                                </mrow>
-                                <mo fence="true" form="postfix" stretchy="false">}</mo>
-                            </mrow>
-                            <mrow>
-                                <mo fence="true" form="prefix" stretchy="false">(</mo>
-                                <mi>|</mi>
-                                <mi class="mathcal">ℱ</mi>
-                                <mrow>
-                                    <mo fence="true" form="prefix" stretchy="false">{</mo>
-                                    <mi>x</mi>
-                                    <mo fence="true" form="postfix" stretchy="false">}</mo>
-                                </mrow>
-                                <mrow>
-                                    <mo fence="true" form="prefix" stretchy="false">(</mo>
-                                    <mi>ξ</mi>
-                                    <mo fence="true" form="postfix" stretchy="false">)</mo>
-                                </mrow>
-                                <msup>
-                                    <mi>|</mi>
-                                    <mn>2</mn>
-                                </msup>
-                                <mo fence="true" form="postfix" stretchy="false">)</mo>
-                            </mrow>
-                        </mrow>
-                    </mtd>
-                </mtr>
-            </mtable>
-        </math>
+        $$
+        \begin{align*}
+           r(\tau) &= \mathcal{F}^{-1}\{r(\tau)\}(\mathcal{F}\{r(\tau)\}(\xi)) \\
+           &= \mathcal{F}^{-1}\{r(\tau)\}(| \mathcal{F}\{x\}(\xi) |^2)
+        \end{align*}
+        $$
+
 
         <canvas id="autocorr-canvas"></canvas>
 
-        <br>
-        <br>
         Consider this difference function, used to find an unknown period:
-        <math display="block" class="tml-display" style="display:block math;">
-            <mrow>
-                <msub>
-                    <mi>d</mi>
-                    <mi>t</mi>
-                </msub>
-                <mrow>
-                    <mo fence="true" form="prefix" stretchy="false">(</mo>
-                    <mi>τ</mi>
-                    <mo fence="true" form="postfix" stretchy="false">)</mo>
-                </mrow>
-                <mo>=</mo>
-                <mrow>
-                    <munderover>
-                        <mo movablelimits="false">∑</mo>
-                        <mrow>
-                            <mi>j</mi>
-                            <mo>=</mo>
-                            <mn>1</mn>
-                        </mrow>
-                        <mi>W</mi>
-                    </munderover>
-                </mrow>
-                <msup>
-                    <mrow>
-                        <mo fence="true" form="prefix" stretchy="false">(</mo>
-                        <msub>
-                            <mi>x</mi>
-                            <mi>j</mi>
-                        </msub>
-                        <mo>−</mo>
-                        <msub>
-                            <mi>x</mi>
-                            <mrow>
-                                <mi>j</mi>
-                                <mo>−</mo>
-                                <mi>τ</mi>
-                            </mrow>
-                        </msub>
-                        <mo fence="true" form="postfix" stretchy="false">)</mo>
-                    </mrow>
-                    <mn>2</mn>
-                </msup>
-            </mrow>
-        </math>
-        When <math>
-            <mrow>
-                <mi>d</mi>
-                <mrow>
-                    <mo fence="true" form="prefix" stretchy="false">(</mo>
-                    <mi>τ</mi>
-                    <mo fence="true" form="postfix" stretchy="false">)</mo>
-                </mrow>
-                <mo>=</mo>
-                <mn>0</mn>
-            </mrow>
-        </math>, we have a tau which is a multiple of the period.
+
+        $$
+        d_t(\tau) = \sum_{j=1}^{W}(x_j - x_{j-\tau})^2
+        $$
+      
+        When \(d(\tau)=0\), we have a tau which is a multiple of the period.
         <br><br>
         This can be expanded,
-        <math display="block" class="tml-display" style="display:block math;">
-            <mrow>
-                <msub>
-                    <mi>d</mi>
-                    <mi>t</mi>
-                </msub>
-                <mrow>
-                    <mo fence="true" form="prefix" stretchy="false">(</mo>
-                    <mi>τ</mi>
-                    <mo fence="true" form="postfix" stretchy="false">)</mo>
-                </mrow>
-                <mo>=</mo>
-                <mrow>
-                    <munderover>
-                        <mo movablelimits="false">∑</mo>
-                        <mrow>
-                            <mi>j</mi>
-                            <mo>=</mo>
-                            <mn>1</mn>
-                        </mrow>
-                        <mi>W</mi>
-                    </munderover>
-                </mrow>
-                <mrow>
-                    <mo fence="true" form="prefix" stretchy="false">(</mo>
-                    <msubsup>
-                        <mi>x</mi>
-                        <mi>j</mi>
-                        <mn class="tml-sml-pad">2</mn>
-                    </msubsup>
-                    <mo>+</mo>
-                    <msubsup>
-                        <mi>x</mi>
-                        <mrow>
-                            <mi>j</mi>
-                            <mo>−</mo>
-                            <mi>τ</mi>
-                        </mrow>
-                        <mn class="tml-sml-pad">2</mn>
-                    </msubsup>
-                    <mo>−</mo>
-                    <mn>2</mn>
-                    <msub>
-                        <mi>x</mi>
-                        <mi>j</mi>
-                    </msub>
-                    <msub>
-                        <mi>x</mi>
-                        <mrow>
-                            <mi>j</mi>
-                            <mo>−</mo>
-                            <mi>τ</mi>
-                        </mrow>
-                    </msub>
-                    <mo fence="true" form="postfix" stretchy="false">)</mo>
-                </mrow>
-            </mrow>
-        </math>
 
+        $$
+        d_t(\tau) = \sum_{j=1}^{W}(x_j^2 + x_{j-\tau}^2 -2x_jx_{j-\tau})^2
+        $$
 
         and we can substitute in the autocorrelation function:
-        <math display="block" class="tml-display" style="display:block math;">
-            <mrow>
-                <msub>
-                    <mi>d</mi>
-                    <mi>t</mi>
-                </msub>
-                <mrow>
-                    <mo fence="true" form="prefix" stretchy="false">(</mo>
-                    <mi>τ</mi>
-                    <mo fence="true" form="postfix" stretchy="false">)</mo>
-                </mrow>
-                <mo>=</mo>
-                <msub>
-                    <mi>r</mi>
-                    <mi>t</mi>
-                </msub>
-                <mrow>
-                    <mo fence="true" form="prefix" stretchy="false">(</mo>
-                    <mn>0</mn>
-                    <mo fence="true" form="postfix" stretchy="false">)</mo>
-                </mrow>
-                <mo>+</mo>
-                <msub>
-                    <mi>r</mi>
-                    <mrow>
-                        <mi>t</mi>
-                        <mo>+</mo>
-                        <mi>τ</mi>
-                    </mrow>
-                </msub>
-                <mrow>
-                    <mo fence="true" form="prefix" stretchy="false">(</mo>
-                    <mn>0</mn>
-                    <mo fence="true" form="postfix" stretchy="false">)</mo>
-                </mrow>
-                <mo>−</mo>
-                <mn>2</mn>
-                <msub>
-                    <mi>r</mi>
-                    <mi>t</mi>
-                </msub>
-                <mrow>
-                    <mo fence="true" form="prefix" stretchy="false">(</mo>
-                    <mi>τ</mi>
-                    <mo fence="true" form="postfix" stretchy="false">)</mo>
-                </mrow>
-            </mrow>
-        </math>
-        <math display="block" class="tml-display" style="display:block math;">
-            <mrow>
-                <mi>f</mi>
-                <mo>=</mo>
-                <mfrac>
-                    <mtext>sample rate</mtext>
-                    <mtext>lag</mtext>
-                </mfrac>
-            </mrow>
-        </math>
+
+        $$
+        d_t(\tau) = r_t(0) + r_{t+\tau}(0) - 2r_t(\tau)
+        $$
+
+        When the lag (\(\tau\)) is 0, this function will also be zero
+ 
+
     </div>
 
 
     <canvas id="freq-canvas"></canvas>
 
-    $$ \mathcal{F}$$
+   
 
 
     <script>
