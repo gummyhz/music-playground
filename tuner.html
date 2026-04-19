@@ -65,6 +65,7 @@
             background-color: var(--wm-gold);
             color: var(--wm-silver);
             box-shadow: inset 0px 0px 4px rgba(0, 0, 0, 0.5);
+            z-index: 1;
         }
 
         #note {
@@ -157,28 +158,63 @@
         .tml-display {
             margin: 1rem;
         }
+        math {
+            font-family: "Latin Modern Math", "Cambria Math", serif;
+            font-size: 1.2em; /* Math symbols often look smaller than text */
+        }
+
+        #tuner { 
+            /* background-color:black; */
+        }
 
         #cloud-circle {
             width: 500px;
             height: 275px;
             border-radius: 50%;
             filter: url(#filter);
-            box-shadow: 400px 400px 60px 0px #fff;
+            /* box-shadow: 0px 0px 60px 0px #fff; */
+            /* background: radial-gradient(ellipse at center, #fff 0%, rgba(255,255,255,0.6) 50%, transparent 100%); */
+           background: radial-gradient(ellipse at center, 
+    #D8DCDB 0%, 
+    #D8DCDB 15%,
+    rgba(216, 220, 219, 0.7) 35%, 
+    rgba(216, 220, 219, 0.2) 55%, 
+    transparent 70%);
+  
             position: absolute;
-            top: -320px;
-            left: -320px;
+            margin: auto;
+            z-index: 0;
         }
 
+        #cloud-container {
+            position: relative;
+            width: 500px;
+            height: 275px;
+            margin: 0 auto;
+            margin-top: 2em;
+            margin-bottom: 2em;
+            padding-top: 50px;
+            padding-bottom: 300px;
+        }
+
+        #cloud-center {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 1;
+        }
         canvas {
             width: 100%;
             height: 250px;
-            /* Force a height */
             display: block;
             margin: 20px 0;
             background-color: var(--wm-silver);
             border: 1px solid var(--wm-gold);
         }
     </style>
+    <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <!-- <script src="https://bundle.run/fft.js@4.0.4"></script> -->
 </head>
 
 <body>
@@ -186,28 +222,50 @@
     <h3>A sound tuner and visualizer</h3>
     <br>
     <hr>
-    <br>
-    <h3>Tuner</h3>
-    <div id="note">Note: --</div>
-    <div id="freq">0.0 Hz</div>
+    
+    <div id="tuner">
+    <div style="display: block;"><h3>Tuner</h3></div>
+    
+    
+    <div id="cloud-container">
+        <div id="cloud-center">
+            <div id="note">Note: --</div>
+            <div id="freq">0.0 Hz</div>
+        </div>
+        <div id="cloud-circle"></div>
+        <svg width="0" height="0"> 
+            <!-- <filter id="filter">
+            <feTurbulence type="fractalNoise" baseFrequency=".01" numOctaves="10" />
+            <feDisplacementMap in="SourceGraphic" scale="180" />
+            </filter> -->
+            <filter id="filter" x="-50%" y="-50%" width="300%" height="300%">
+                <feTurbulence type="fractalNoise" baseFrequency=".01" numOctaves="10" result="noise"/>
+                <feDisplacementMap in="SourceGraphic" in2="noise" scale="180" result="displaced"/>
+                <feGaussianBlur in="displaced" stdDeviation="20" result="blurred"/>
+                <feMerge>
+                    <feMergeNode in="blurred"/>
+                    <feMergeNode in="displaced"/>
+                </feMerge>
+            </filter>
+        </svg>
+    </div>
+    
     <div class="meter">
         <div id="needle"></div>
     </div>
-    <!-- <div id="cloud-circle"></div> -->
-    <!-- <svg width="0" height="0"> 
-    <filter id="filter">
-      <feTurbulence type="fractalNoise" baseFrequency=".01" numOctaves="10" />
-      <feDisplacementMap in="SourceGraphic" scale="180" />
-    </filter>
-</svg> -->
-    <div class="dropdown">
-        <select class="dropbtn">Scale used:
-            <option>2-TET (12 tone equal temperment)</option>
-            <option>Pelog</option>
+    
+    <div class="dropdown" id="scale-dropdown">
+        <label for="scale-select">Scale used:</label>
+        <select class="dropbtn" id="scale-select">
+            <option value="12-TET" selected>12-TET (12 tone equal temperament)</option>
+            <option value="Pelog (just)">Pelog (just)</option>
+            <option value="Slendro (Harrison/Yogyakarta)">Slendro (Harrison/Yogyakarta)</option>
+            <option value="Slendro (Surakata)">Slendro (Surakata)</option>
         </select>
     </div>
     <button id="start">Start Microphone</button>
     <br><br>
+    </div>  
     <hr>
     <br>
     <h3>Methods</h3>
@@ -303,18 +361,986 @@
         The Weiner-Khinchin theorem (in the discrete time case) allows us to compute the autocorrelation funtion using a
         Fourier Transform.
         <br>
-        <br>
-        To get there, we must start with the spectral power density function. 
-        <br>The spectral power density of the autocorrelation function represents the distribution of intensity (power) of
-        the signal across frequencies.
-        It can be found by taking the statistical mean of the signal's power, in terms of frequency.
 
+        To get to this new and convenient definition of the autocorrelation function,
+        we can start by taking the Fourier
+        transform <math>
+            <mrow>
+                <mi class="mathcal">ℱ</mi>
+                <mrow>
+                    <mo fence="true" form="prefix" stretchy="false">{</mo>
+                    <mi>r</mi>
+                    <mrow>
+                        <mo fence="true" form="prefix" stretchy="false">(</mo>
+                        <mi>τ</mi>
+                        <mo fence="true" form="postfix" stretchy="false">)</mo>
+                    </mrow>
+                    <mo fence="true" form="postfix" stretchy="false">}</mo>
+                </mrow>
+                <mrow>
+                    <mo fence="true" form="prefix" stretchy="false">(</mo>
+                    <mi>ξ</mi>
+                    <mo fence="true" form="postfix" stretchy="false">)</mo>
+                </mrow>
+            </mrow>
+        </math> of <math>
+            <mrow>
+                <mi>r</mi>
+                <mrow>
+                    <mo fence="true" form="prefix" stretchy="false">(</mo>
+                    <mi>τ</mi>
+                    <mo fence="true" form="postfix" stretchy="false">)</mo>
+                </mrow>
+            </mrow>
+        </math>. We will use the continuous forms of functions to show these conversions.
         <br>
-        somehow we get
-        <br>
-           
-      
+        A continuous version of our autocorrelation is
+        <math display="block" class="tml-display" style="display:block math;">
+            <mrow>
+                <mi>r</mi>
+                <mrow>
+                    <mo fence="true" form="prefix" stretchy="false">(</mo>
+                    <mi>τ</mi>
+                    <mo fence="true" form="postfix" stretchy="false">)</mo>
+                </mrow>
+                <mo>=</mo>
+                <msubsup>
+                    <mo movablelimits="false">∫</mo>
+                    <mrow>
+                        <mo form="prefix" stretchy="false" lspace="0em" rspace="0em">−</mo>
+                        <mi>∞</mi>
+                    </mrow>
+                    <mi>∞</mi>
+                </msubsup>
+                <mi>x</mi>
+                <mrow>
+                    <mo fence="true" form="prefix" stretchy="false">(</mo>
+                    <mi>t</mi>
+                    <mo fence="true" form="postfix" stretchy="false">)</mo>
+                </mrow>
+                <mi>x</mi>
+                <mrow>
+                    <mo fence="true" form="prefix" stretchy="false">(</mo>
+                    <mi>t</mi>
+                    <mo>+</mo>
+                    <mi>τ</mi>
+                    <mo fence="true" form="postfix" stretchy="false">)</mo>
+                </mrow>
+                <mi>d</mi>
+                <mi>t</mi>
+            </mrow>
+        </math>
 
+        and its Fourier transform is
+        <math display="block" class="tml-display" style="display:block math;">
+            <mrow>
+                <mi class="mathcal">ℱ</mi>
+                <mrow>
+                    <mo fence="true" form="prefix" stretchy="false">{</mo>
+                    <mi>r</mi>
+                    <mrow>
+                        <mo fence="true" form="prefix" stretchy="false">(</mo>
+                        <mi>τ</mi>
+                        <mo fence="true" form="postfix" stretchy="false">)</mo>
+                    </mrow>
+                    <mo fence="true" form="postfix" stretchy="false">}</mo>
+                </mrow>
+                <mrow>
+                    <mo fence="true" form="prefix" stretchy="false">(</mo>
+                    <mi>ξ</mi>
+                    <mo fence="true" form="postfix" stretchy="false">)</mo>
+                </mrow>
+                <mo>=</mo>
+                <msubsup>
+                    <mo movablelimits="false">∫</mo>
+                    <mrow>
+                        <mo form="prefix" stretchy="false" lspace="0em" rspace="0em">−</mo>
+                        <mi>∞</mi>
+                    </mrow>
+                    <mi>∞</mi>
+                </msubsup>
+                <mi>r</mi>
+                <mrow>
+                    <mo fence="true" form="prefix" stretchy="false">(</mo>
+                    <mi>τ</mi>
+                    <mo fence="true" form="postfix" stretchy="false">)</mo>
+                </mrow>
+                <msup>
+                    <mi>e</mi>
+                    <mrow class="tml-sml-pad">
+                        <mo form="prefix" stretchy="false" lspace="0em" rspace="0em">−</mo>
+                        <mi>i</mi>
+                        <mn>2</mn>
+                        <mi>π</mi>
+                        <mi>ξ</mi>
+                        <mi>τ</mi>
+                    </mrow>
+                </msup>
+                <mi>d</mi>
+                <mi>τ</mi>
+            </mrow>
+        </math>
+
+        Let's substitue in <math>
+            <mrow>
+                <mi>r</mi>
+                <mrow>
+                    <mo fence="true" form="prefix" stretchy="false">(</mo>
+                    <mi>τ</mi>
+                    <mo fence="true" form="postfix" stretchy="false">)</mo>
+                </mrow>
+            </mrow>
+        </math>
+        and swap the order of integration by Fubini's theorem.
+
+        <math display="block" class="tml-display" style="display:block math;">
+            <mtable displaystyle="true" class="tml-jot">
+                <mtr>
+                    <mtd class="tml-right" style="padding-left:0em;padding-right:0em;">
+                        <mrow>
+                            <mi class="mathcal">ℱ</mi>
+                            <mrow>
+                                <mo fence="true" form="prefix" stretchy="false">{</mo>
+                                <mi>r</mi>
+                                <mrow>
+                                    <mo fence="true" form="prefix" stretchy="false">(</mo>
+                                    <mi>τ</mi>
+                                    <mo fence="true" form="postfix" stretchy="false">)</mo>
+                                </mrow>
+                                <mo fence="true" form="postfix" stretchy="false">}</mo>
+                            </mrow>
+                            <mrow>
+                                <mo fence="true" form="prefix" stretchy="false">(</mo>
+                                <mi>ξ</mi>
+                                <mo fence="true" form="postfix" stretchy="false">)</mo>
+                            </mrow>
+                        </mrow>
+                    </mtd>
+                    <mtd class="tml-left" style="padding-left:0em;padding-right:0em;">
+                        <mrow>
+                            <mo>=</mo>
+                            <msubsup>
+                                <mo movablelimits="false">∫</mo>
+                                <mrow>
+                                    <mo form="prefix" stretchy="false" lspace="0em" rspace="0em">−</mo>
+                                    <mi>∞</mi>
+                                </mrow>
+                                <mi>∞</mi>
+                            </msubsup>
+                            <mrow>
+                                <mo fence="true" form="prefix" stretchy="true">[</mo>
+                                <msubsup>
+                                    <mo movablelimits="false">∫</mo>
+                                    <mrow>
+                                        <mo form="prefix" stretchy="false" lspace="0em" rspace="0em">−</mo>
+                                        <mi>∞</mi>
+                                    </mrow>
+                                    <mi>∞</mi>
+                                </msubsup>
+                                <mi>x</mi>
+                                <mrow>
+                                    <mo fence="true" form="prefix" stretchy="false">(</mo>
+                                    <mi>t</mi>
+                                    <mo fence="true" form="postfix" stretchy="false">)</mo>
+                                </mrow>
+                                <mi>x</mi>
+                                <mrow>
+                                    <mo fence="true" form="prefix" stretchy="false">(</mo>
+                                    <mi>t</mi>
+                                    <mo>+</mo>
+                                    <mi>τ</mi>
+                                    <mo fence="true" form="postfix" stretchy="false">)</mo>
+                                </mrow>
+                                <mi>d</mi>
+                                <mi>t</mi>
+                                <mo fence="true" form="postfix" stretchy="true">]</mo>
+                            </mrow>
+                            <msup>
+                                <mi>e</mi>
+                                <mrow class="tml-sml-pad">
+                                    <mo form="prefix" stretchy="false" lspace="0em" rspace="0em">−</mo>
+                                    <mi>i</mi>
+                                    <mn>2</mn>
+                                    <mi>π</mi>
+                                    <mi>ξ</mi>
+                                    <mi>τ</mi>
+                                </mrow>
+                            </msup>
+                            <mi>d</mi>
+                            <mi>τ</mi>
+                        </mrow>
+                    </mtd>
+                </mtr>
+                <mtr>
+                    <mtd class="tml-right" style="padding-left:0em;padding-right:0em;">
+                        <mrow></mrow>
+                    </mtd>
+                    <mtd class="tml-left" style="padding-left:0em;padding-right:0em;">
+                        <mrow>
+                            <mo>=</mo>
+                            <msubsup>
+                                <mo movablelimits="false">∫</mo>
+                                <mrow>
+                                    <mo form="prefix" stretchy="false" lspace="0em" rspace="0em">−</mo>
+                                    <mi>∞</mi>
+                                </mrow>
+                                <mi>∞</mi>
+                            </msubsup>
+                            <msubsup>
+                                <mo movablelimits="false">∫</mo>
+                                <mrow>
+                                    <mo form="prefix" stretchy="false" lspace="0em" rspace="0em">−</mo>
+                                    <mi>∞</mi>
+                                </mrow>
+                                <mi>∞</mi>
+                            </msubsup>
+                            <mi>x</mi>
+                            <mrow>
+                                <mo fence="true" form="prefix" stretchy="false">(</mo>
+                                <mi>t</mi>
+                                <mo fence="true" form="postfix" stretchy="false">)</mo>
+                            </mrow>
+                            <mi>x</mi>
+                            <mrow>
+                                <mo fence="true" form="prefix" stretchy="false">(</mo>
+                                <mi>t</mi>
+                                <mo>+</mo>
+                                <mi>τ</mi>
+                                <mo fence="true" form="postfix" stretchy="false">)</mo>
+                            </mrow>
+                            <msup>
+                                <mi>e</mi>
+                                <mrow class="tml-sml-pad">
+                                    <mo form="prefix" stretchy="false" lspace="0em" rspace="0em">−</mo>
+                                    <mi>i</mi>
+                                    <mn>2</mn>
+                                    <mi>π</mi>
+                                    <mi>ξ</mi>
+                                    <mi>τ</mi>
+                                </mrow>
+                            </msup>
+                            <mi>d</mi>
+                            <mi>τ</mi>
+                            <mi>d</mi>
+                            <mi>t</mi>
+                        </mrow>
+                    </mtd>
+                </mtr>
+                <mtr>
+                    <mtd class="tml-right" style="padding-left:0em;padding-right:0em;">
+                        <mrow></mrow>
+                    </mtd>
+                    <mtd class="tml-left" style="padding-left:0em;padding-right:0em;">
+                        <mrow>
+                            <mo>=</mo>
+                            <msubsup>
+                                <mo movablelimits="false">∫</mo>
+                                <mrow>
+                                    <mo form="prefix" stretchy="false" lspace="0em" rspace="0em">−</mo>
+                                    <mi>∞</mi>
+                                </mrow>
+                                <mi>∞</mi>
+                            </msubsup>
+                            <mi>x</mi>
+                            <mrow>
+                                <mo fence="true" form="prefix" stretchy="false">(</mo>
+                                <mi>t</mi>
+                                <mo fence="true" form="postfix" stretchy="false">)</mo>
+                            </mrow>
+                            <msubsup>
+                                <mo movablelimits="false">∫</mo>
+                                <mrow>
+                                    <mo form="prefix" stretchy="false" lspace="0em" rspace="0em">−</mo>
+                                    <mi>∞</mi>
+                                </mrow>
+                                <mi>∞</mi>
+                            </msubsup>
+                            <mi>x</mi>
+                            <mrow>
+                                <mo fence="true" form="prefix" stretchy="false">(</mo>
+                                <mi>t</mi>
+                                <mo>+</mo>
+                                <mi>τ</mi>
+                                <mo fence="true" form="postfix" stretchy="false">)</mo>
+                            </mrow>
+                            <msup>
+                                <mi>e</mi>
+                                <mrow class="tml-sml-pad">
+                                    <mo form="prefix" stretchy="false" lspace="0em" rspace="0em">−</mo>
+                                    <mi>i</mi>
+                                    <mn>2</mn>
+                                    <mi>π</mi>
+                                    <mi>ξ</mi>
+                                    <mi>τ</mi>
+                                </mrow>
+                            </msup>
+                            <mi>d</mi>
+                            <mi>τ</mi>
+                            <mi>d</mi>
+                            <mi>t</mi>
+                        </mrow>
+                    </mtd>
+                </mtr>
+            </mtable>
+        </math>
+
+        If we define and substitue in <math>
+            <mrow>
+                <mi>u</mi>
+                <mo>=</mo>
+                <mi>t</mi>
+                <mo>+</mo>
+                <mi>τ</mi>
+            </mrow>
+        </math>, we can see that the inner integral can be represented as a Fourier transform of <math>
+            <mi>x</mi>
+        </math> and an exponent.
+        <math display="block" class="tml-display" style="display:block math;">
+            <mtable displaystyle="true" class="tml-jot">
+                <mtr>
+                    <mtd class="tml-right" style="padding-left:0em;padding-right:0em;">
+                        <mrow>
+                            <msubsup>
+                                <mo movablelimits="false">∫</mo>
+                                <mrow>
+                                    <mo form="prefix" stretchy="false" lspace="0em" rspace="0em">−</mo>
+                                    <mi>∞</mi>
+                                </mrow>
+                                <mi>∞</mi>
+                            </msubsup>
+                            <mi>x</mi>
+                            <mrow>
+                                <mo fence="true" form="prefix" stretchy="false">(</mo>
+                                <mi>t</mi>
+                                <mo>+</mo>
+                                <mi>τ</mi>
+                                <mo fence="true" form="postfix" stretchy="false">)</mo>
+                            </mrow>
+                            <msup>
+                                <mi>e</mi>
+                                <mrow class="tml-sml-pad">
+                                    <mo form="prefix" stretchy="false" lspace="0em" rspace="0em">−</mo>
+                                    <mi>i</mi>
+                                    <mn>2</mn>
+                                    <mi>π</mi>
+                                    <mi>ξ</mi>
+                                    <mi>τ</mi>
+                                </mrow>
+                            </msup>
+                            <mi>d</mi>
+                            <mi>τ</mi>
+                        </mrow>
+                    </mtd>
+                    <mtd class="tml-left" style="padding-left:0em;padding-right:0em;">
+                        <mrow>
+                            <mo>=</mo>
+                            <msubsup>
+                                <mo movablelimits="false">∫</mo>
+                                <mrow>
+                                    <mo form="prefix" stretchy="false" lspace="0em" rspace="0em">−</mo>
+                                    <mi>∞</mi>
+                                </mrow>
+                                <mi>∞</mi>
+                            </msubsup>
+                            <mi>x</mi>
+                            <mrow>
+                                <mo fence="true" form="prefix" stretchy="false">(</mo>
+                                <mi>u</mi>
+                                <mo fence="true" form="postfix" stretchy="false">)</mo>
+                            </mrow>
+                            <msup>
+                                <mi>e</mi>
+                                <mrow class="tml-sml-pad">
+                                    <mo form="prefix" stretchy="false" lspace="0em" rspace="0em">−</mo>
+                                    <mi>i</mi>
+                                    <mn>2</mn>
+                                    <mi>π</mi>
+                                    <mi>ξ</mi>
+                                    <mrow>
+                                        <mo fence="true" form="prefix" stretchy="false">(</mo>
+                                        <mi>u</mi>
+                                        <mo>−</mo>
+                                        <mi>t</mi>
+                                        <mo fence="true" form="postfix" stretchy="false">)</mo>
+                                    </mrow>
+                                </mrow>
+                            </msup>
+                            <mi>d</mi>
+                            <mi>u</mi>
+                        </mrow>
+                    </mtd>
+                </mtr>
+                <mtr>
+                    <mtd class="tml-right" style="padding-left:0em;padding-right:0em;">
+                        <mrow></mrow>
+                    </mtd>
+                    <mtd class="tml-left" style="padding-left:0em;padding-right:0em;">
+                        <mrow>
+                            <mo>=</mo>
+                            <msup>
+                                <mi>e</mi>
+                                <mrow class="tml-sml-pad">
+                                    <mi>i</mi>
+                                    <mn>2</mn>
+                                    <mi>π</mi>
+                                    <mi>ξ</mi>
+                                    <mi>t</mi>
+                                </mrow>
+                            </msup>
+                            <msubsup>
+                                <mo movablelimits="false">∫</mo>
+                                <mrow>
+                                    <mo form="prefix" stretchy="false" lspace="0em" rspace="0em">−</mo>
+                                    <mi>∞</mi>
+                                </mrow>
+                                <mi>∞</mi>
+                            </msubsup>
+                            <mi>x</mi>
+                            <mrow>
+                                <mo fence="true" form="prefix" stretchy="false">(</mo>
+                                <mi>u</mi>
+                                <mo fence="true" form="postfix" stretchy="false">)</mo>
+                            </mrow>
+                            <msup>
+                                <mi>e</mi>
+                                <mrow class="tml-sml-pad">
+                                    <mo form="prefix" stretchy="false" lspace="0em" rspace="0em">−</mo>
+                                    <mi>i</mi>
+                                    <mn>2</mn>
+                                    <mi>π</mi>
+                                    <mi>ξ</mi>
+                                    <mrow>
+                                        <mo fence="true" form="prefix" stretchy="false">(</mo>
+                                        <mi>u</mi>
+                                        <mo fence="true" form="postfix" stretchy="false">)</mo>
+                                    </mrow>
+                                </mrow>
+                            </msup>
+                            <mi>d</mi>
+                            <mi>u</mi>
+                        </mrow>
+                    </mtd>
+                </mtr>
+                <mtr>
+                    <mtd class="tml-right" style="padding-left:0em;padding-right:0em;">
+                        <mrow></mrow>
+                    </mtd>
+                    <mtd class="tml-left" style="padding-left:0em;padding-right:0em;">
+                        <mrow>
+                            <mo>=</mo>
+                            <msup>
+                                <mi>e</mi>
+                                <mrow class="tml-sml-pad">
+                                    <mi>i</mi>
+                                    <mn>2</mn>
+                                    <mi>π</mi>
+                                    <mi>ξ</mi>
+                                    <mi>t</mi>
+                                </mrow>
+                            </msup>
+                            <mi class="mathcal">ℱ</mi>
+                            <mrow>
+                                <mo fence="true" form="prefix" stretchy="false">{</mo>
+                                <mi>x</mi>
+                                <mo fence="true" form="postfix" stretchy="false">}</mo>
+                            </mrow>
+                            <mrow>
+                                <mo fence="true" form="prefix" stretchy="false">(</mo>
+                                <mi>ξ</mi>
+                                <mo fence="true" form="postfix" stretchy="false">)</mo>
+                            </mrow>
+                        </mrow>
+                    </mtd>
+                </mtr>
+            </mtable>
+        </math>
+
+        Subsituting this back in, we get
+
+
+
+        <math display="block" class="tml-display" style="display:block math;">
+            <mtable displaystyle="true" class="tml-jot">
+                <mtr>
+                    <mtd class="tml-right" style="padding-left:0em;padding-right:0em;">
+                        <mrow>
+                            <mi class="mathcal">ℱ</mi>
+                            <mrow>
+                                <mo fence="true" form="prefix" stretchy="false">{</mo>
+                                <mi>r</mi>
+                                <mrow>
+                                    <mo fence="true" form="prefix" stretchy="false">(</mo>
+                                    <mi>τ</mi>
+                                    <mo fence="true" form="postfix" stretchy="false">)</mo>
+                                </mrow>
+                                <mo fence="true" form="postfix" stretchy="false">}</mo>
+                            </mrow>
+                            <mrow>
+                                <mo fence="true" form="prefix" stretchy="false">(</mo>
+                                <mi>ξ</mi>
+                                <mo fence="true" form="postfix" stretchy="false">)</mo>
+                            </mrow>
+                        </mrow>
+                    </mtd>
+                    <mtd class="tml-left" style="padding-left:0em;padding-right:0em;">
+                        <mrow>
+                            <mo>=</mo>
+                            <msubsup>
+                                <mo movablelimits="false">∫</mo>
+                                <mrow>
+                                    <mo form="prefix" stretchy="false" lspace="0em" rspace="0em">−</mo>
+                                    <mi>∞</mi>
+                                </mrow>
+                                <mi>∞</mi>
+                            </msubsup>
+                            <mi>x</mi>
+                            <mrow>
+                                <mo fence="true" form="prefix" stretchy="false">(</mo>
+                                <mi>t</mi>
+                                <mo fence="true" form="postfix" stretchy="false">)</mo>
+                            </mrow>
+                            <msup>
+                                <mi>e</mi>
+                                <mrow class="tml-sml-pad">
+                                    <mi>i</mi>
+                                    <mn>2</mn>
+                                    <mi>π</mi>
+                                    <mi>ξ</mi>
+                                    <mi>t</mi>
+                                </mrow>
+                            </msup>
+                            <mi class="mathcal">ℱ</mi>
+                            <mrow>
+                                <mo fence="true" form="prefix" stretchy="false">{</mo>
+                                <mi>x</mi>
+                                <mo fence="true" form="postfix" stretchy="false">}</mo>
+                            </mrow>
+                            <mrow>
+                                <mo fence="true" form="prefix" stretchy="false">(</mo>
+                                <mi>ξ</mi>
+                                <mo fence="true" form="postfix" stretchy="false">)</mo>
+                            </mrow>
+                            <mi>d</mi>
+                            <mi>t</mi>
+                        </mrow>
+                    </mtd>
+                </mtr>
+                <mtr>
+                    <mtd class="tml-right" style="padding-left:0em;padding-right:0em;">
+                        <mrow></mrow>
+                    </mtd>
+                    <mtd class="tml-left" style="padding-left:0em;padding-right:0em;">
+                        <mrow>
+                            <mo>=</mo>
+                            <mi class="mathcal">ℱ</mi>
+                            <mrow>
+                                <mo fence="true" form="prefix" stretchy="false">{</mo>
+                                <mi>x</mi>
+                                <mo fence="true" form="postfix" stretchy="false">}</mo>
+                            </mrow>
+                            <mrow>
+                                <mo fence="true" form="prefix" stretchy="false">(</mo>
+                                <mi>ξ</mi>
+                                <mo fence="true" form="postfix" stretchy="false">)</mo>
+                            </mrow>
+                            <msubsup>
+                                <mo movablelimits="false">∫</mo>
+                                <mrow>
+                                    <mo form="prefix" stretchy="false" lspace="0em" rspace="0em">−</mo>
+                                    <mi>∞</mi>
+                                </mrow>
+                                <mi>∞</mi>
+                            </msubsup>
+                            <mi>x</mi>
+                            <mrow>
+                                <mo fence="true" form="prefix" stretchy="false">(</mo>
+                                <mi>t</mi>
+                                <mo fence="true" form="postfix" stretchy="false">)</mo>
+                            </mrow>
+                            <msup>
+                                <mi>e</mi>
+                                <mrow class="tml-sml-pad">
+                                    <mi>i</mi>
+                                    <mn>2</mn>
+                                    <mi>π</mi>
+                                    <mi>ξ</mi>
+                                    <mi>t</mi>
+                                </mrow>
+                            </msup>
+                            <mi>d</mi>
+                            <mi>t</mi>
+                        </mrow>
+                    </mtd>
+                </mtr>
+            </mtable>
+        </math>
+
+        We may notice that
+        <math display="block" class="tml-display" style="display:block math;">
+            <mrow>
+                <msubsup>
+                    <mo movablelimits="false">∫</mo>
+                    <mrow>
+                        <mo form="prefix" stretchy="false" lspace="0em" rspace="0em">−</mo>
+                        <mi>∞</mi>
+                    </mrow>
+                    <mi>∞</mi>
+                </msubsup>
+                <mi>x</mi>
+                <mrow>
+                    <mo fence="true" form="prefix" stretchy="false">(</mo>
+                    <mi>t</mi>
+                    <mo fence="true" form="postfix" stretchy="false">)</mo>
+                </mrow>
+                <msup>
+                    <mi>e</mi>
+                    <mrow class="tml-sml-pad">
+                        <mi>i</mi>
+                        <mn>2</mn>
+                        <mi>π</mi>
+                        <mi>ξ</mi>
+                        <mi>t</mi>
+                    </mrow>
+                </msup>
+                <mi>d</mi>
+                <mi>t</mi>
+                <mo>=</mo>
+                <mi class="mathcal">ℱ</mi>
+                <mrow>
+                    <mo fence="true" form="prefix" stretchy="false">{</mo>
+                    <mi>x</mi>
+                    <mo fence="true" form="postfix" stretchy="false">}</mo>
+                </mrow>
+                <mrow>
+                    <mo fence="true" form="prefix" stretchy="false">(</mo>
+                    <mo form="prefix" stretchy="false">−</mo>
+                    <mi>ξ</mi>
+                    <mo fence="true" form="postfix" stretchy="false">)</mo>
+                </mrow>
+            </mrow>
+        </math>
+
+        giving us
+
+        <math display="block" class="tml-display" style="display:block math;">
+            <mrow>
+                <mi class="mathcal">ℱ</mi>
+                <mrow>
+                    <mo fence="true" form="prefix" stretchy="false">{</mo>
+                    <mi>r</mi>
+                    <mrow>
+                        <mo fence="true" form="prefix" stretchy="false">(</mo>
+                        <mi>τ</mi>
+                        <mo fence="true" form="postfix" stretchy="false">)</mo>
+                    </mrow>
+                    <mo fence="true" form="postfix" stretchy="false">}</mo>
+                </mrow>
+                <mrow>
+                    <mo fence="true" form="prefix" stretchy="false">(</mo>
+                    <mo form="prefix" stretchy="false">−</mo>
+                    <mi>ξ</mi>
+                    <mo fence="true" form="postfix" stretchy="false">)</mo>
+                </mrow>
+                <mo>=</mo>
+                <mi class="mathcal">ℱ</mi>
+                <mrow>
+                    <mo fence="true" form="prefix" stretchy="false">{</mo>
+                    <mi>x</mi>
+                    <mo fence="true" form="postfix" stretchy="false">}</mo>
+                </mrow>
+                <mrow>
+                    <mo fence="true" form="prefix" stretchy="false">(</mo>
+                    <mi>ξ</mi>
+                    <mo fence="true" form="postfix" stretchy="false">)</mo>
+                </mrow>
+                <mi class="mathcal">ℱ</mi>
+                <mrow>
+                    <mo fence="true" form="prefix" stretchy="false">{</mo>
+                    <mi>x</mi>
+                    <mo fence="true" form="postfix" stretchy="false">}</mo>
+                </mrow>
+                <mrow>
+                    <mo fence="true" form="prefix" stretchy="false">(</mo>
+                    <mo form="prefix" stretchy="false">−</mo>
+                    <mi>ξ</mi>
+                    <mo fence="true" form="postfix" stretchy="false">)</mo>
+                </mrow>
+            </mrow>
+        </math>
+
+        And because for real <math>
+            <mi>x</mi>
+        </math>, the Fourier transform at a negated frequency is the complex conjugate of the Fourier transform at the
+        non-negated frequency, we get
+
+
+        <math display="block" class="tml-display" style="display:block math;">
+            <mrow>
+                <mi class="mathcal">ℱ</mi>
+                <mrow>
+                    <mo fence="true" form="prefix" stretchy="false">{</mo>
+                    <mi>x</mi>
+                    <mo fence="true" form="postfix" stretchy="false">}</mo>
+                </mrow>
+                <mrow>
+                    <mo fence="true" form="prefix" stretchy="false">(</mo>
+                    <mo form="prefix" stretchy="false">−</mo>
+                    <mi>ξ</mi>
+                    <mo fence="true" form="postfix" stretchy="false">)</mo>
+                </mrow>
+                <mo>=</mo>
+                <menclose notation="top" class="tml-overline">
+                    <mrow>
+                        <mi class="mathcal">ℱ</mi>
+                        <mrow>
+                            <mo fence="true" form="prefix" stretchy="false">{</mo>
+                            <mi>x</mi>
+                            <mo fence="true" form="postfix" stretchy="false">}</mo>
+                        </mrow>
+                        <mrow>
+                            <mo fence="true" form="prefix" stretchy="false">(</mo>
+                            <mi>ξ</mi>
+                            <mo fence="true" form="postfix" stretchy="false">)</mo>
+                        </mrow>
+                    </mrow>
+                </menclose>
+            </mrow>
+        </math>
+
+        Therefore,
+        <math display="block" class="tml-display" style="display:block math;">
+            <mtable displaystyle="true" class="tml-jot">
+                <mtr>
+                    <mtd class="tml-right" style="padding-left:0em;padding-right:0em;">
+                        <mrow>
+                            <mi class="mathcal">ℱ</mi>
+                            <mrow>
+                                <mo fence="true" form="prefix" stretchy="false">{</mo>
+                                <mi>r</mi>
+                                <mrow>
+                                    <mo fence="true" form="prefix" stretchy="false">(</mo>
+                                    <mi>τ</mi>
+                                    <mo fence="true" form="postfix" stretchy="false">)</mo>
+                                </mrow>
+                                <mo fence="true" form="postfix" stretchy="false">}</mo>
+                            </mrow>
+                            <mrow>
+                                <mo fence="true" form="prefix" stretchy="false">(</mo>
+                                <mi>ξ</mi>
+                                <mo fence="true" form="postfix" stretchy="false">)</mo>
+                            </mrow>
+                        </mrow>
+                    </mtd>
+                    <mtd class="tml-left" style="padding-left:0em;padding-right:0em;">
+                        <mrow>
+                            <mo>=</mo>
+                            <mi class="mathcal">ℱ</mi>
+                            <mrow>
+                                <mo fence="true" form="prefix" stretchy="false">{</mo>
+                                <mi>x</mi>
+                                <mrow>
+                                    <mo fence="true" form="prefix" stretchy="false">(</mo>
+                                    <mi>τ</mi>
+                                    <mo fence="true" form="postfix" stretchy="false">)</mo>
+                                </mrow>
+                                <mo fence="true" form="postfix" stretchy="false">}</mo>
+                            </mrow>
+                            <mrow>
+                                <mo fence="true" form="prefix" stretchy="false">(</mo>
+                                <mi>ξ</mi>
+                                <mo fence="true" form="postfix" stretchy="false">)</mo>
+                            </mrow>
+                            <mi class="mathcal">ℱ</mi>
+                            <mrow>
+                                <mo fence="true" form="prefix" stretchy="false">{</mo>
+                                <mi>x</mi>
+                                <mo fence="true" form="postfix" stretchy="false">}</mo>
+                            </mrow>
+                            <mrow>
+                                <mo fence="true" form="prefix" stretchy="false">(</mo>
+                                <mo form="prefix" stretchy="false">−</mo>
+                                <mi>ξ</mi>
+                                <mo fence="true" form="postfix" stretchy="false">)</mo>
+                            </mrow>
+                        </mrow>
+                    </mtd>
+                </mtr>
+                <mtr>
+                    <mtd class="tml-right" style="padding-left:0em;padding-right:0em;">
+                        <mrow></mrow>
+                    </mtd>
+                    <mtd class="tml-left" style="padding-left:0em;padding-right:0em;">
+                        <mrow>
+                            <mo>=</mo>
+                            <mi class="mathcal">ℱ</mi>
+                            <mrow>
+                                <mo fence="true" form="prefix" stretchy="false">{</mo>
+                                <mi>x</mi>
+                                <mo fence="true" form="postfix" stretchy="false">}</mo>
+                            </mrow>
+                            <mrow>
+                                <mo fence="true" form="prefix" stretchy="false">(</mo>
+                                <mi>ξ</mi>
+                                <mo fence="true" form="postfix" stretchy="false">)</mo>
+                            </mrow>
+                            <menclose notation="top" class="tml-overline">
+                                <mrow>
+                                    <mi class="mathcal">ℱ</mi>
+                                    <mrow>
+                                        <mo fence="true" form="prefix" stretchy="false">{</mo>
+                                        <mi>x</mi>
+                                        <mo fence="true" form="postfix" stretchy="false">}</mo>
+                                    </mrow>
+                                    <mrow>
+                                        <mo fence="true" form="prefix" stretchy="false">(</mo>
+                                        <mi>ξ</mi>
+                                        <mo fence="true" form="postfix" stretchy="false">)</mo>
+                                    </mrow>
+                                </mrow>
+                            </menclose>
+                        </mrow>
+                    </mtd>
+                </mtr>
+                <mtr>
+                    <mtd class="tml-right" style="padding-left:0em;padding-right:0em;">
+                        <mrow></mrow>
+                    </mtd>
+                    <mtd class="tml-left" style="padding-left:0em;padding-right:0em;">
+                        <mrow>
+                            <mo>=</mo>
+                            <mi>|</mi>
+                            <mi class="mathcal">ℱ</mi>
+                            <mrow>
+                                <mo fence="true" form="prefix" stretchy="false">{</mo>
+                                <mi>x</mi>
+                                <mo fence="true" form="postfix" stretchy="false">}</mo>
+                            </mrow>
+                            <mrow>
+                                <mo fence="true" form="prefix" stretchy="false">(</mo>
+                                <mi>ξ</mi>
+                                <mo fence="true" form="postfix" stretchy="false">)</mo>
+                            </mrow>
+                            <msup>
+                                <mi>|</mi>
+                                <mn>2</mn>
+                            </msup>
+                        </mrow>
+                    </mtd>
+                </mtr>
+            </mtable>
+        </math>
+
+
+        Using the inverse Fourier transform, we can get the autocorrelation back out, this time with a formulation
+        faster to compute.
+
+        <math display="block" class="tml-display" style="display:block math;">
+            <mtable displaystyle="true" class="tml-jot">
+                <mtr>
+                    <mtd class="tml-right" style="padding-left:0em;padding-right:0em;">
+                        <mrow>
+                            <mi>r</mi>
+                            <mrow>
+                                <mo fence="true" form="prefix" stretchy="false">(</mo>
+                                <mi>τ</mi>
+                                <mo fence="true" form="postfix" stretchy="false">)</mo>
+                            </mrow>
+                        </mrow>
+                    </mtd>
+                    <mtd class="tml-left" style="padding-left:0em;padding-right:0em;">
+                        <mrow>
+                            <mo>=</mo>
+                            <msup>
+                                <mi class="mathcal">ℱ</mi>
+                                <mrow>
+                                    <mo form="prefix" stretchy="false" lspace="0em" rspace="0em">−</mo>
+                                    <mn>1</mn>
+                                </mrow>
+                            </msup>
+                            <mrow>
+                                <mo fence="true" form="prefix" stretchy="false">{</mo>
+                                <mi>r</mi>
+                                <mrow>
+                                    <mo fence="true" form="prefix" stretchy="false">(</mo>
+                                    <mi>τ</mi>
+                                    <mo fence="true" form="postfix" stretchy="false">)</mo>
+                                </mrow>
+                                <mo fence="true" form="postfix" stretchy="false">}</mo>
+                            </mrow>
+                            <mrow>
+                                <mo fence="true" form="prefix" stretchy="false">(</mo>
+                                <mi class="mathcal">ℱ</mi>
+                                <mrow>
+                                    <mo fence="true" form="prefix" stretchy="false">{</mo>
+                                    <mi>r</mi>
+                                    <mrow>
+                                        <mo fence="true" form="prefix" stretchy="false">(</mo>
+                                        <mi>τ</mi>
+                                        <mo fence="true" form="postfix" stretchy="false">)</mo>
+                                    </mrow>
+                                    <mo fence="true" form="postfix" stretchy="false">}</mo>
+                                </mrow>
+                                <mrow>
+                                    <mo fence="true" form="prefix" stretchy="false">(</mo>
+                                    <mi>ξ</mi>
+                                    <mo fence="true" form="postfix" stretchy="false">)</mo>
+                                </mrow>
+                                <mo fence="true" form="postfix" stretchy="false">)</mo>
+                            </mrow>
+                        </mrow>
+                    </mtd>
+                </mtr>
+                <mtr>
+                    <mtd class="tml-right" style="padding-left:0em;padding-right:0em;">
+                        <mrow></mrow>
+                    </mtd>
+                    <mtd class="tml-left" style="padding-left:0em;padding-right:0em;">
+                        <mrow>
+                            <mo>=</mo>
+                            <msup>
+                                <mi class="mathcal">ℱ</mi>
+                                <mrow>
+                                    <mo form="prefix" stretchy="false" lspace="0em" rspace="0em">−</mo>
+                                    <mn>1</mn>
+                                </mrow>
+                            </msup>
+                            <mrow>
+                                <mo fence="true" form="prefix" stretchy="false">{</mo>
+                                <mi>r</mi>
+                                <mrow>
+                                    <mo fence="true" form="prefix" stretchy="false">(</mo>
+                                    <mi>τ</mi>
+                                    <mo fence="true" form="postfix" stretchy="false">)</mo>
+                                </mrow>
+                                <mo fence="true" form="postfix" stretchy="false">}</mo>
+                            </mrow>
+                            <mrow>
+                                <mo fence="true" form="prefix" stretchy="false">(</mo>
+                                <mi>|</mi>
+                                <mi class="mathcal">ℱ</mi>
+                                <mrow>
+                                    <mo fence="true" form="prefix" stretchy="false">{</mo>
+                                    <mi>x</mi>
+                                    <mo fence="true" form="postfix" stretchy="false">}</mo>
+                                </mrow>
+                                <mrow>
+                                    <mo fence="true" form="prefix" stretchy="false">(</mo>
+                                    <mi>ξ</mi>
+                                    <mo fence="true" form="postfix" stretchy="false">)</mo>
+                                </mrow>
+                                <msup>
+                                    <mi>|</mi>
+                                    <mn>2</mn>
+                                </msup>
+                                <mo fence="true" form="postfix" stretchy="false">)</mo>
+                            </mrow>
+                        </mrow>
+                    </mtd>
+                </mtr>
+            </mtable>
+        </math>
+
+        <canvas id="autocorr-canvas"></canvas>
 
         <br>
         <br>
@@ -502,13 +1528,13 @@
 
     <canvas id="freq-canvas"></canvas>
 
-
+    $$ \mathcal{F}$$
 
 
     <script>
         const startButton = document.getElementById('start');
 
-        const sizeDisplay = document.getElementById('sizeDisplay');
+        const FFT_SIZE = 2048;
 
         let audioCtx;
         let analyser;
@@ -518,17 +1544,34 @@
         let fdarray;
         let bufferLength;
 
-        const twelveTET = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"];
-        const pelogNum = ["1", "2", "3", "4", "5", "6", "7"];
-        //  124.00000 cents ! Galimer
-        //  273.00000 cents ! Panelu
-        //  540.00000 cents ! Bungur
-        //  676.00000 cents ! Loloran
-        //  790.00000 cents ! Tugu
-        //  971.00000 cents ! Sorog
-        //  2/1 ! Singgul
 
+        const defaultScales = {
+            "12-TET": {
+                notes: ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"],
+                cents: [0, 100, 200, 300, 400, 500, 600, 700, 800, 900, 1000, 1100],
+                octave: 1200
+            },
+            "Pelog (just)": {
+                notes: ["bem", "gulu", "dada", "pelog", "lima", "nem", "barang"],
+                cents: [0, 128, 267, 563, 702, 814, 979],
+                octave: 1214  // stretched octave from the page
+            },
+            "Slendro (Harrison/Yogyakarta)": {
+                notes: ["1", "2", "3", "5", "6"],
+                cents: [0, 204, 408, 702, 906],  // [8/7, 8/7, 7/6, 8/7, 7/6] in cents: ~231, 231, 267, 231, 267
+                octave: 1200
+            },
+            "Slendro (Surakata)": {
+                notes: ["1", "2", "3", "5", "6"],
+                cents: [0, 231, 462, 702, 933],  // [8/7, 8/7, 147/128, 8/7, 7/6]
+                octave: 1200
+            }
+        };
 
+        let currentScale = defaultScales["12-TET"];
+        document.getElementById('scale-select').addEventListener('change', (e) => {
+            currentScale = defaultScales[e.target.value];
+        });
 
         // Activate microphone
         document.getElementById('start').onclick = async () => {
@@ -541,8 +1584,8 @@
             analyser.smoothingTimeConstant = 0.8;
 
             bufferLength = analyser.frequencyBinCount;
-            tdarray = new Uint8Array(analyser.fftSize);
-            fdarray = new Uint8Array(analyser.frequencyBinCount);
+            tdarray = new Float32Array(analyser.fftSize);
+            fdarray = new Float32Array(analyser.frequencyBinCount);
             buffer = new Float32Array(analyser.fftSize);
 
             source.connect(analyser);
@@ -553,11 +1596,12 @@
 
         function draw() {
             requestAnimationFrame(draw);
-            analyser.getByteTimeDomainData(tdarray);
-            analyser.getByteFrequencyData(fdarray);
+            analyser.getFloatTimeDomainData(tdarray);
+            analyser.getFloatFrequencyData(fdarray);
 
             drawAmpTime();
             drawFreqTime();
+            draw_autocorr_fft()
         }
 
         function drawAmpTime() {
@@ -580,8 +1624,8 @@
             let x = margin;
 
             for (let i = 0; i < tdarray.length; i++) {
-                const v = tdarray[i] / 128.0;
-                const y = (v * plotHeight) / 2;
+                const v = tdarray[i];
+                const y = ((1 - v) / 2) * plotHeight + margin / 2;
                 if (i === 0) ctx.moveTo(x, y);
                 else ctx.lineTo(x, y);
                 x += sliceWidth;
@@ -610,7 +1654,7 @@
 
             // Start i at 2 to ignore the DC offset/low rumble at 0Hz
             for (let i = 2; i < fdarray.length; i++) {
-                const barHeight = (fdarray[i] / 255) * plotHeight;
+                const barHeight = ((fdarray[i] + 160) / 160) * plotHeight; // map -160..0 dB to 0..1
                 ctx.fillStyle = "#004E38";
                 ctx.fillRect(x, HEIGHT - barHeight - 20, barWidth, barHeight);
                 x += barWidth + 1;
@@ -640,31 +1684,100 @@
             ctx.fillText(labelX, width - 40, height - 5);
         }
 
+
+
+        function autocor_fft() {
+            analyser.getFloatTimeDomainData(buffer);
+            const size = buffer.length;
+            const autocorr = new Float32Array(size);
+            for (let lag = 0; lag < size; lag++) {
+                let sum = 0;
+                for (let i = 0; i < size - lag; i++) {
+                    sum += buffer[i] * buffer[i + lag];
+                }
+                autocorr[lag] = sum;
+            }
+            return autocorr;
+        }
+
+        function draw_autocorr_fft() {
+            const canvas = document.getElementById('autocorr-canvas');
+            const ctx = canvas.getContext('2d');
+            const data = autocor_fft();
+            const WIDTH = canvas.width = canvas.clientWidth;
+            const HEIGHT = canvas.height = canvas.clientHeight;
+            const margin = 40;
+            const plotWidth = WIDTH - margin;
+            const plotHeight = HEIGHT - margin;
+
+    
+
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.beginPath();
+            ctx.strokeStyle = "#004E38"; // --wm-green
+
+            const sliceWidth = canvas.width / (data.length / 2);
+            let x = 0;
+
+            for (let i = 0; i < data.length / 2; i++) {
+                // Normalize the values: data[0] is always the peak (max energy)
+                const v = data[i] / data[0]; 
+                const y = (1 - v) * canvas.height;
+
+                if (i === 0) {
+                    ctx.moveTo(x, y);
+                } else {
+                    ctx.lineTo(x, y);
+                }
+                x += sliceWidth;
+            }
+            ctx.stroke();
+        }
+
+        function centsToHue(cents) {
+            const absCents = Math.abs(cents);
+            if (absCents > 45) return 0; // red
+            return 120 - (absCents / 45) * 120; // green to red
+        }
+
+        function centsToColor(cents) {
+            const hue = centsToHue(cents);
+            return `hsl(${hue}, 50%, 75%)`;
+        }
+
         function update() {
+            
             analyser.getFloatTimeDomainData(buffer);
             const pitch = autoCorrelate(buffer, audioCtx.sampleRate);
 
             if (pitch !== -1) {
                 const { note, cents } = getNote(pitch);
+                const color = centsToColor(cents);
+                const hue = centsToHue(cents);
+                const absCents = Math.abs(cents);
+                const opacity = absCents > 45 ? 0.1 : 1 - (absCents / 45);
+
+                const bg = `rgba(255, 255, 255, 1)`;
+                const bgMid = `rgba(0, 78, 56, ${opacity * 0.7})`;
+                const bgEdge = `rgba(0, 78, 56, ${opacity * 0.2})`;
+                
                 document.getElementById('note').innerText = note;
+                document.getElementById('note').style.color = color;
                 document.getElementById('freq').innerText = `${pitch.toFixed(1)} Hz`;
-                document.getElementById('needle').style.left = `${50 + cents}%`;
+                document.getElementById('freq').style.color = color;
+                document.getElementById('needle').style.left = `${50 + Math.max(-50, Math.min(50, cents))}%`;
+                document.getElementById('needle').style.backgroundColor = color;
+               
+                document.getElementById('cloud-circle').style.background = `radial-gradient(ellipse at center,
+                    ${bg} 0%,
+                    ${bg} 15%,
+                    ${bg} 35%,
+                    ${bgEdge} 55%,
+                    transparent 70%)`;
             }
             requestAnimationFrame(update);
         };
 
-        // // Yin algorithm step 1
-        // function autocorrelation(buf, sampleRate) {
-        //     TAU_MAX = 100
-        //     let r = 0
-        //     let ACF = new Float32Array(TAU_MAX);
-        //     for (let tau = 0; tau < TAU_MAX; tau++) {
-        //         for (let i = 0; i < buf.length; i++) {
-        //             r = r + (buf[i] * buf[i + tau])
-        //         }
-        //     }
-
-        // }
 
         function autoCorrelate(buf, sampleRate) {
             let size = buf.length;
@@ -699,13 +1812,43 @@
             return sampleRate / maxpos;
         }
 
+        function centsToColor(cents) {
+            const absCents = Math.abs(cents);
+            if (absCents > 45) {
+                // Too far — not really attempting this note
+                return "#864A37"; // --brick-red, neutral "no man's land"
+            }
+            // 0 cents = green (120), 45 cents = red (0)
+            const hue = 120 - (absCents / 45) * 120;
+            return `hsl(${hue}, 80%, 35%)`;
+        }
+
 
 
         function getNote(frequency) {
-            const j = Math.round(12 * (Math.log(frequency / 440) / Math.log(2)));
-            const noteIndex = (j + 69) % 12;
-            const cents = Math.floor(1200 * Math.log2(frequency / (440 * Math.pow(2, j / 12))));
-            return { note: twelveTET[noteIndex], cents: cents };
+            console.log(currentScale);
+            const { notes, cents, octave } = currentScale;
+
+            // Convert frequency to cents above A4 (440Hz), then reduce to one pseudo-octave
+            const centsAboveA4 = 1200 * Math.log2(frequency / 440);
+            const centsInOctave = ((centsAboveA4 % octave) + octave) % octave;
+
+            // Find nearest scale degree
+            let minDist = Infinity;
+            let nearestNote = notes[0];
+            let nearestCents = 0;
+
+            for (let i = 0; i < cents.length; i++) {
+                const dist = Math.abs(centsInOctave - cents[i]);
+                if (dist < minDist) {
+                    minDist = dist;
+                    nearestNote = notes[i];
+                    nearestCents = cents[i];
+                }
+            }
+
+            const deviation = centsInOctave - nearestCents; // signed cents off from nearest note
+            return { note: nearestNote, cents: deviation };
         }
     </script>
 </body>
