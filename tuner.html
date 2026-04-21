@@ -57,6 +57,11 @@
             color: var(--wm-gold);
         }
 
+        ul {
+            padding-left: 2em;
+            padding-right: 2em;
+        }
+
         #start {
             margin-top: 1em;
             padding: .5rem;
@@ -158,13 +163,11 @@
         .tml-display {
             margin: 1rem;
         }
+
         math {
             font-family: "Latin Modern Math", "Cambria Math", serif;
-            font-size: 1.2em; /* Math symbols often look smaller than text */
-        }
-
-        #tuner { 
-            /* background-color:black; */
+            font-size: 1.2em;
+            /* Math symbols often look smaller than text */
         }
 
         #cloud-circle {
@@ -174,13 +177,13 @@
             filter: url(#filter);
             /* box-shadow: 0px 0px 60px 0px #fff; */
             /* background: radial-gradient(ellipse at center, #fff 0%, rgba(255,255,255,0.6) 50%, transparent 100%); */
-           background: radial-gradient(ellipse at center, 
-    #D8DCDB 0%, 
-    #D8DCDB 15%,
-    rgba(216, 220, 219, 0.7) 35%, 
-    rgba(216, 220, 219, 0.2) 55%, 
-    transparent 70%);
-  
+            background: radial-gradient(ellipse at center,
+                    #D8DCDB 0%,
+                    #D8DCDB 15%,
+                    rgba(216, 220, 219, 0.7) 35%,
+                    rgba(216, 220, 219, 0.2) 55%,
+                    transparent 70%);
+
             position: absolute;
             margin: auto;
             z-index: 0;
@@ -204,6 +207,7 @@
             transform: translate(-50%, -50%);
             z-index: 1;
         }
+
         canvas {
             width: 100%;
             height: 250px;
@@ -211,6 +215,71 @@
             margin: 20px 0;
             background-color: var(--wm-silver);
             border: 1px solid var(--wm-gold);
+        }
+
+        #custom-tuning-panel {
+            max-width: 900px;
+            margin: 0.75rem auto;
+            text-align: left;
+            border: 1px solid var(--wm-gold);
+            padding: 0.75rem;
+            background: rgba(255, 255, 255, 0.45);
+        }
+
+        .panel-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        #custom-tuning-panel label {
+            font-size: 0.9rem;
+            display: block;
+            margin-bottom: 0.2rem;
+        }
+
+        #custom-tuning-panel input,
+        #custom-tuning-panel textarea,
+        #custom-tuning-panel button {
+            width: 100%;
+            font-family: inherit;
+            font-size: 0.95rem;
+            padding: 0.35rem;
+            border: 1px solid var(--griffin-green);
+        }
+
+        #custom-tuning-panel textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        .panel-buttons {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+            margin-top: 0.5rem;
+        }
+
+        .panel-buttons button {
+            width: auto;
+            cursor: pointer;
+            background: var(--wm-green);
+            color: var(--wm-silver);
+            border: none;
+            padding: 0.4rem 0.7rem;
+        }
+
+        #custom-status {
+            min-height: 1rem;
+            margin-top: 0.4rem;
+            font-size: 0.9rem;
+        }
+
+        @media (max-width: 700px) {
+            .panel-row {
+                grid-template-columns: 1fr;
+            }
         }
     </style>
     <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
@@ -222,62 +291,106 @@
     <h3>A sound tuner and visualizer</h3>
     <br>
     <hr>
-    
+
     <div id="tuner">
-    <div style="display: block;"><h3>Tuner</h3></div>
-    
-    
-    <div id="cloud-container">
-        <div id="cloud-center">
-            <div id="note">Note: --</div>
-            <div id="freq">0.0 Hz</div>
+        <div style="display: block;">
+            <h3>Tuner</h3>
         </div>
-        <div id="cloud-circle"></div>
-        <svg width="0" height="0"> 
-            <!-- <filter id="filter">
+
+
+        <div id="cloud-container">
+            <div id="cloud-center">
+                <div id="note">Note: --</div>
+                <div id="freq">0.0 Hz</div>
+            </div>
+            <div id="cloud-circle"></div>
+            <svg width="0" height="0">
+                <!-- <filter id="filter">
             <feTurbulence type="fractalNoise" baseFrequency=".01" numOctaves="10" />
             <feDisplacementMap in="SourceGraphic" scale="180" />
             </filter> -->
-            <filter id="filter" x="-50%" y="-50%" width="300%" height="300%">
-                <feTurbulence type="fractalNoise" baseFrequency=".01" numOctaves="10" result="noise"/>
-                <feDisplacementMap in="SourceGraphic" in2="noise" scale="180" result="displaced"/>
-                <feGaussianBlur in="displaced" stdDeviation="20" result="blurred"/>
-                <feMerge>
-                    <feMergeNode in="blurred"/>
-                    <feMergeNode in="displaced"/>
-                </feMerge>
-            </filter>
-        </svg>
+                <filter id="filter" x="-50%" y="-50%" width="300%" height="300%">
+                    <feTurbulence type="fractalNoise" baseFrequency=".01" numOctaves="10" result="noise" />
+                    <feDisplacementMap in="SourceGraphic" in2="noise" scale="180" result="displaced" />
+                    <feGaussianBlur in="displaced" stdDeviation="20" result="blurred" />
+                    <feMerge>
+                        <feMergeNode in="blurred" />
+                        <feMergeNode in="displaced" />
+                    </feMerge>
+                </filter>
+            </svg>
+        </div>
+
+        <div class="meter">
+            <div id="needle"></div>
+        </div>
+
+        <div class="dropdown" id="scale-dropdown">
+            <label for="scale-select">Scale used:</label>
+            <select class="dropbtn" id="scale-select">
+                <option value="12-TET" selected>12-TET (12 tone equal temperament)</option>
+                <option value="Pelog (just)">Pelog (just)</option>
+                <option value="Slendro (Harrison/Yogyakarta)">Slendro (Harrison/Yogyakarta)</option>
+                <option value="Slendro (Surakata)">Slendro (Surakata)</option>
+            </select>
+        </div>
+
+        <div id="custom-tuning-panel">
+            <strong>Custom Tunings (Absolute Frequencies)</strong>
+            <div class="panel-row">
+                <div>
+                    <label for="api-base-url">API base URL</label>
+                    <input id="api-base-url" type="text" placeholder="https://...execute-api.../api/tunings">
+                </div>
+                <div>
+                    <label for="reference-hz">Reference Hz (optional)</label>
+                    <input id="reference-hz" type="number" min="1" step="0.01" placeholder="440">
+                </div>
+            </div>
+            <div class="panel-row">
+                <div>
+                    <label for="custom-tuning-name">Tuning name</label>
+                    <input id="custom-tuning-name" type="text" maxlength="100" placeholder="My custom tuning">
+                </div>
+                <div>
+                    <label for="custom-tuning-description">Description (optional)</label>
+                    <input id="custom-tuning-description" type="text" maxlength="500" placeholder="Notes">
+                </div>
+            </div>
+            <label for="custom-note-lines">Notes and frequencies (one per line: Note,Hz)</label>
+            <textarea id="custom-note-lines" placeholder="A4,440\nE5,659.25\nD5,587.33"></textarea>
+            <div class="panel-buttons">
+                <button id="save-api-url-btn" type="button">Save API URL</button>
+                <button id="refresh-custom-btn" type="button">Refresh Tunings</button>
+                <button id="save-custom-btn" type="button">Save New Tuning</button>
+                <button id="delete-custom-btn" type="button">Delete Selected Tuning</button>
+            </div>
+            <div id="custom-status"></div>
+        </div>
+
+        <button id="start">Start Microphone</button>
+        <br><br>
     </div>
-    
-    <div class="meter">
-        <div id="needle"></div>
-    </div>
-    
-    <div class="dropdown" id="scale-dropdown">
-        <label for="scale-select">Scale used:</label>
-        <select class="dropbtn" id="scale-select">
-            <option value="12-TET" selected>12-TET (12 tone equal temperament)</option>
-            <option value="Pelog (just)">Pelog (just)</option>
-            <option value="Slendro (Harrison/Yogyakarta)">Slendro (Harrison/Yogyakarta)</option>
-            <option value="Slendro (Surakata)">Slendro (Surakata)</option>
-        </select>
-    </div>
-    <button id="start">Start Microphone</button>
-    <br><br>
-    </div>  
     <hr>
     <br>
     <h3>Methods</h3>
     <div class="methods-body">
         We use the YIN algorithm to find the pitch of input sound.
-        <br>
+        The following section describes the Yin method treatment of sound, in a way to directly reflect our situation.
+        Some parts not explicitly spelled out in the paper are elaborated on.
+
+        We will describe and implement the methods from <br><br>
+        A. de Cheveigné and H. Kawahara, “YIN, a fundamental frequency estimator for speech and music,” The Journal of
+        the Acoustical Society of America, vol. 111, no. 4, pp. 1917-1930, Apr. 2002, doi: <a
+            href="https://doi.org/10.1121/1.1458024">https://doi.org/10.1121/1.1458024</a>.
+        <br><br>
         The input signal, obtained from the Web Audio API,
         comes in as a discrete time-series array of amplitudes.
 
         <canvas id="amp-canvas"></canvas>
 
 
+        <h4>Step 1: Autocorrelation</h4>
         We use the following autocorrelation function
         to quantify the similarity between a signal
         and itself delayed by some lag \(\tau\).
@@ -285,8 +398,8 @@
         $$ r_{t} ( \tau ) = \sum_{j = t + 1}^{t + W - \tau} x_{j} x_{j + \tau}$$
 
 
-        Here, \(r_t(\tau)\) is the autocorrelation function 
-        at the time intex \(t\), with a lag of \(\tau\). 
+        Here, \(r_t(\tau)\) is the autocorrelation function
+        at the time intex \(t\), with a lag of \(\tau\).
         \(W\) is the integration window size, or the time frame in consideration.
         We subtract \(\tau\) from the upper summation bound to lessen the effect of larger lag sizes,
         with the assumption that the
@@ -299,7 +412,7 @@
 
         To get to this new and convenient definition of the autocorrelation function,
         we can start by taking the Fourier
-        transform \(\mathcal{F}\{r(\tau)\}(\xi)\) of \(r(\tau)\). 
+        transform \(\mathcal{F}\{r(\tau)\}(\xi)\) of \(r(\tau)\).
         We will use the continuous forms of functions to show these conversions.
         <br>
         A continuous version of our autocorrelation is
@@ -313,30 +426,31 @@
         $$
         \mathcal{F}\{r(\tau)\}(\xi) = \int_{-\infty}^{\infty}r(\tau)e^{-i2\pi\xi\tau}d\tau
         $$
-      
 
-        Let's substitue in \(r(\tau)\) 
+
+        Let's substitue in \(r(\tau)\)
         and swap the order of integration by Fubini's theorem.
 
         $$
-        \begin{align*} 
-            \mathcal{F}\{r(\tau)\}(\xi) &= \int_{-\infty}^{\infty}\left[\int_{-\infty}^{\infty} x(t)x(t + \tau)dt\right]e^{-i2\pi\xi\tau}d\tau \\
-            &= \int_{-\infty}^{\infty}\int_{-\infty}^{\infty} x(t)x(t + \tau)e^{-i2\pi\xi\tau}d\tau dt \\
-            &= \int_{-\infty}^{\infty}x(t)\int_{-\infty}^{\infty} x(t + \tau)e^{-i2\pi\xi\tau}d\tau dt
+        \begin{align*}
+        \mathcal{F}\{r(\tau)\}(\xi) &= \int_{-\infty}^{\infty}\left[\int_{-\infty}^{\infty} x(t)x(t +
+        \tau)dt\right]e^{-i2\pi\xi\tau}d\tau \\
+        &= \int_{-\infty}^{\infty}\int_{-\infty}^{\infty} x(t)x(t + \tau)e^{-i2\pi\xi\tau}d\tau dt \\
+        &= \int_{-\infty}^{\infty}x(t)\int_{-\infty}^{\infty} x(t + \tau)e^{-i2\pi\xi\tau}d\tau dt
         \end{align*}
         $$
 
-    
 
-        If we define and substitue in \(u=t+\tau\), 
-        we can see that the inner integral can be represented as a Fourier transform 
+
+        If we define and substitue in \(u=t+\tau\),
+        we can see that the inner integral can be represented as a Fourier transform
         of \(x\) multiplied by an exponent.
 
         $$
         \begin{align*}
-            \int_{-\infty}^{\infty} x(t + \tau)e^{-i2\pi\xi\tau}d\tau &= \int_{-\infty}^{\infty} x(u)e^{-i2\pi\xi(u-t)}du \\
-            &= e^{i2\pi\xi t}\int_{-\infty}^{\infty} x(u)e^{-i2\pi\xi u}du \\
-            &= e^{i2\pi\xi t}\mathcal{F}\{x\}(\xi)
+        \int_{-\infty}^{\infty} x(t + \tau)e^{-i2\pi\xi\tau}d\tau &= \int_{-\infty}^{\infty} x(u)e^{-i2\pi\xi(u-t)}du \\
+        &= e^{i2\pi\xi t}\int_{-\infty}^{\infty} x(u)e^{-i2\pi\xi u}du \\
+        &= e^{i2\pi\xi t}\mathcal{F}\{x\}(\xi)
         \end{align*}
         $$
 
@@ -344,9 +458,9 @@
         Subsituting this back in, we get
 
         $$
-       \begin{align*}
-            \mathcal{F}\{r(\tau)\}(\xi) &= \int_{-\infty}^{\infty} x(t)e^{i2\pi\xi t}\mathcal{F}\{x\}(\xi)dt \\
-            &= \mathcal{F}\{x\}(\xi)\int_{-\infty}^{\infty} x(t)e^{i2\pi\xi t}dt 
+        \begin{align*}
+        \mathcal{F}\{r(\tau)\}(\xi) &= \int_{-\infty}^{\infty} x(t)e^{i2\pi\xi t}\mathcal{F}\{x\}(\xi)dt \\
+        &= \mathcal{F}\{x\}(\xi)\int_{-\infty}^{\infty} x(t)e^{i2\pi\xi t}dt
         \end{align*}
         $$
 
@@ -355,17 +469,17 @@
         We may notice that
 
         $$
-        \int_{-\infty}^{\infty}x(t)e^{i2\pi\xi t}dt = \mathcal{F}\{x\}(-\xi) 
+        \int_{-\infty}^{\infty}x(t)e^{i2\pi\xi t}dt = \mathcal{F}\{x\}(-\xi)
         $$
 
         giving us
 
         $$
-         \mathcal{F}\{r(\tau)\}(\xi) =  \mathcal{F}\{x\}(\xi)  \mathcal{F}\{x\}(-\xi)
+        \mathcal{F}\{r(\tau)\}(\xi) = \mathcal{F}\{x\}(\xi) \mathcal{F}\{x\}(-\xi)
         $$
 
-        And because for real \(x\), 
-        the Fourier transform at a negated frequency 
+        And because for real \(x\),
+        the Fourier transform at a negated frequency
         is the complex conjugate of the Fourier transform at the
         non-negated frequency, we get
 
@@ -377,9 +491,9 @@
 
         $$
         \begin{align*}
-            \mathcal{F}\{r(\tau)\}(\xi) &= \mathcal{F}\{x\}(\xi)  \mathcal{F}\{x\}(-\xi) \\
-            &= \mathcal{F}\{x\}(\xi) \overline{\mathcal{F}\{x\}(\xi)} \\
-            &= | \mathcal{F}\{x\}(\xi) |^2
+        \mathcal{F}\{r(\tau)\}(\xi) &= \mathcal{F}\{x\}(\xi) \mathcal{F}\{x\}(-\xi) \\
+        &= \mathcal{F}\{x\}(\xi) \overline{\mathcal{F}\{x\}(\xi)} \\
+        &= | \mathcal{F}\{x\}(\xi) |^2
         \end{align*}
         $$
 
@@ -389,20 +503,34 @@
 
         $$
         \begin{align*}
-           r(\tau) &= \mathcal{F}^{-1}\{r(\tau)\}(\mathcal{F}\{r(\tau)\}(\xi)) \\
-           &= \mathcal{F}^{-1}\{r(\tau)\}(| \mathcal{F}\{x\}(\xi) |^2)
+        r(\tau) &= \mathcal{F}^{-1}\{r(\tau)\}(\mathcal{F}\{r(\tau)\}(\xi)) \\
+        &= \mathcal{F}^{-1}\{r(\tau)\}(| \mathcal{F}\{x\}(\xi) |^2)
         \end{align*}
+        $$
+
+        We can compute this with the discrete fourier transform
+        TODO CHECK THESE BOUNDS
+
+        $$
+        \mathcal{F}\{x\}_k = \sum_{j=t+1}^{t+W}x_j \cdot e^{-i2\pi\frac{k}{W}j}
+        $$
+
+        and the inverse discrete fourier transform
+
+        $$
+        x_j = \frac{1}{N}\sum_{k=0}^{W-1}\mathcal{F}\{x\}_k \cdot e^{i2\pi\frac{k}{N}j}
         $$
 
 
         <canvas id="autocorr-canvas"></canvas>
-
+        <br><br>
+        <h4>Step 2: Difference Function</h4>
         Consider this difference function, used to find an unknown period:
 
         $$
         d_t(\tau) = \sum_{j=1}^{W}(x_j - x_{j-\tau})^2
         $$
-      
+
         When \(d(\tau)=0\), we have a tau which is a multiple of the period.
         <br><br>
         This can be expanded,
@@ -417,21 +545,111 @@
         d_t(\tau) = r_t(0) + r_{t+\tau}(0) - 2r_t(\tau)
         $$
 
-        When the lag (\(\tau\)) is 0, this function will also be zero
- 
+        This is great! We can find the period, and from the period find the frequency.
+
+        <canvas id="diff-canvas"></canvas>
+        <br><br>
+        <h4>Step 3: Cumulative Mean Normalized Difference Function</h4>
+        However, there are two issues.
+        <ul style="text-align: left;">
+            <li>When the lag (\(\tau\)) is zero, this function will also be zero.</li>
+            <li>Period signals with a harmonic strucutre causing multiple dips in the
+                difference function could create dips that are not indicative of the period directly.
+                <ul>
+                    <li>For example, a string playing 440 Hz (A4 in 12 tone equal temperament tuning) may
+                        produce a frequency at 440 Hz as well as the second harmonic, 880 Hz.
+                        The period of the 440 Hz frequency is \(T_0 = \frac{1}{440}\),
+                        and the period at 880 Hz is \(\frac{1}{880} = \frac{1}{2}\cdot\frac{1}{440} = \frac{1}{2}T_0\).
+                        We will see dips at the period of our "main" tone, as well as half that for the second harmonic.
+                    </li>
+                </ul>
+            </li>
+        </ul>
+        <br>
+
+        To address this, consider the "cumulative mean normalized difference function":
+
+        $$
+        d_t'(\tau) =
+        \begin{cases}
+        1, & \text{if } \tau = 0 \\
+        d_t(\tau) / \left[(1/\tau)\sum_{j=1}^{\tau}d_t(j)\right] & \text{otherwise}
+        \end{cases}
+        $$
+
+        We directly address the \(\tau=0\) case with an exception,
+        and divide each difference by the mean difference for \(\tau\) from 0 to the current \(\tau\).
+        This division normalizes each calculated difference to the mean difference accumulated so far,
+        they are only less than 1 when they are less than the running average.
+        <canvas id="CMND-canvas"></canvas>
+        <br><br>
+
+        <h4>Step 4: Absolute Threshold</h4>
+        Another issue which could cause inacuraccies is subharmonic errors.
+        They occur at lower freqencies than the fundemental frequency of the sound,
+        and could have a dip which does not indicate the period of our fundemental frequency.
+
+        <br><br>
+        To address this, we will take the smallest \(\tau\)
+        where \(d_t'(\tau) \lt \text{THRESHOLD}\) for some THRESHOLD such as 0.1 <br><br>
+        <canvas id="threshold-canvas"></canvas>
+        <br><br>
+
+        <h4>Step 5: Parabolic Interpolation</h4>
+        We will fit a parabola onto \(d_t'(\tau-1), d_t'(\tau), d_t'(\tau+1)\)
+        using the Lagrange Interpolation Formula
+        $$
+        P(x) = d_t'(\tau-1) \frac{(x - \tau)(x - (\tau+1))}{((\tau-1) - \tau)((\tau-1) - (\tau+1))}
+        + d_t'(\tau) \frac{(x - (\tau-1))(x - (\tau+1))}{(\tau - (\tau-1))(\tau - (\tau+1))}
+        + d_t'(\tau+1) \frac{(x - (\tau-1))(x - \tau)}{((\tau+1) - (\tau-1))((\tau+1) - \tau)}
+        $$
+        <br>
+        Then, we can take the minimum of this parabola to get a period estimate \(\hat{T}\),
+        <br>
+        and by taking the
+        reciprocal, a frequency estimate: \(\hat{\xi} = \frac{1}{\hat{T}}\).
+        <canvas id="parabola-canvas"></canvas>
+        <br><br>
+
+        <h4>Step 6: Best Local Estimate</h4>
+        To take into account how our window being considered could start at different parts of the period, causing
+        differing results, we may take an initial estimate, then repeat our entire estimation process in a local
+        window around that initial estimate.
+        <br><br>
+        For each time index \(t\), consider the time frame
+        \(\theta \in [t-T_{\text{max}/2}, t+T_{\text{max}/2}]\).
+        <br>
+
+        Find the minimum of \(d_{\theta}'(T_{\theta}) \) and take \(T_{\theta}\) as an initial period estimate for
+        frame \(t\).
+        <br>
+        Then, re-estimate the frequency using the previous steps, this time only considering the range \([T_{\theta}
+        -
+        .2\cdot T_{\theta}, T_{\theta} + .2\cdot T_{\theta}]\)
+
+        <canvas id="freq-canvas"></canvas>
+
 
     </div>
 
 
     <canvas id="freq-canvas"></canvas>
 
-   
+
 
 
     <script>
         const startButton = document.getElementById('start');
+        const scaleSelect = document.getElementById('scale-select');
+        const apiBaseUrlInput = document.getElementById('api-base-url');
+        const referenceHzInput = document.getElementById('reference-hz');
+        const customTuningNameInput = document.getElementById('custom-tuning-name');
+        const customTuningDescriptionInput = document.getElementById('custom-tuning-description');
+        const customNoteLinesInput = document.getElementById('custom-note-lines');
+        const customStatus = document.getElementById('custom-status');
 
         const FFT_SIZE = 2048;
+        const API_BASE_KEY = 'tunerApiBaseUrl';
 
         let audioCtx;
         let analyser;
@@ -440,6 +658,7 @@
         let tdarray;
         let fdarray;
         let bufferLength;
+        let customTunings = [];
 
 
         const defaultScales = {
@@ -466,9 +685,180 @@
         };
 
         let currentScale = defaultScales["12-TET"];
-        document.getElementById('scale-select').addEventListener('change', (e) => {
-            currentScale = defaultScales[e.target.value];
+
+        function setStatus(message, isError = false) {
+            customStatus.textContent = message;
+            customStatus.style.color = isError ? '#964A37' : '#00231B';
+        }
+
+        function getApiBase() {
+            return (apiBaseUrlInput.value || '').trim().replace(/\/$/, '');
+        }
+
+        function parseAbsoluteNotes(text) {
+            const lines = text.split('\n').map(line => line.trim()).filter(Boolean);
+            if (lines.length === 0) throw new Error('Provide at least one Note,Hz line.');
+
+            return lines.map((line) => {
+                const parts = line.split(',').map(x => x.trim());
+                if (parts.length < 2 || !parts[0]) {
+                    throw new Error(`Invalid line: ${line}`);
+                }
+
+                const frequency = Number(parts[1]);
+                if (!Number.isFinite(frequency) || frequency <= 0) {
+                    throw new Error(`Invalid frequency in line: ${line}`);
+                }
+
+                return { note: parts[0], frequency };
+            });
+        }
+
+        async function apiRequest(path = '', options = {}) {
+            const base = getApiBase();
+            if (!base) throw new Error('Set API base URL first.');
+
+            const response = await fetch(`${base}${path}`, {
+                headers: { 'Content-Type': 'application/json' },
+                ...options
+            });
+
+            const text = await response.text();
+            let data = {};
+            try { data = text ? JSON.parse(text) : {}; } catch { data = {}; }
+
+            if (!response.ok) {
+                throw new Error(data.message || `Request failed (${response.status})`);
+            }
+
+            return data;
+        }
+
+        function rebuildScaleSelect() {
+            const previousValue = scaleSelect.value;
+            scaleSelect.innerHTML = '';
+
+            Object.keys(defaultScales).forEach((name) => {
+                const option = document.createElement('option');
+                option.value = name;
+                option.textContent = name;
+                scaleSelect.appendChild(option);
+            });
+
+            if (customTunings.length > 0) {
+                const group = document.createElement('optgroup');
+                group.label = 'Custom (absolute frequencies)';
+
+                customTunings.forEach((tuning) => {
+                    const option = document.createElement('option');
+                    option.value = `custom:${tuning.tuningId}`;
+                    option.textContent = tuning.name;
+                    group.appendChild(option);
+                });
+
+                scaleSelect.appendChild(group);
+            }
+
+            if (scaleSelect.querySelector(`option[value="${previousValue}"]`)) {
+                scaleSelect.value = previousValue;
+            }
+
+            applySelectedScale();
+        }
+
+        function applySelectedScale() {
+            const value = scaleSelect.value;
+            if (value.startsWith('custom:')) {
+                const tuningId = value.slice('custom:'.length);
+                const tuning = customTunings.find((x) => x.tuningId === tuningId);
+                const notes = tuning && tuning.data && Array.isArray(tuning.data.notes) ? tuning.data.notes : [];
+                currentScale = { kind: 'absolute', notes };
+            } else {
+                currentScale = defaultScales[value] || defaultScales['12-TET'];
+            }
+        }
+
+        async function refreshCustomTunings() {
+            try {
+                const data = await apiRequest();
+                customTunings = Array.isArray(data.items) ? data.items : [];
+                rebuildScaleSelect();
+                setStatus(`Loaded ${customTunings.length} custom tuning(s).`);
+            } catch (err) {
+                setStatus(`Refresh failed: ${err.message}`, true);
+            }
+        }
+
+        async function saveCustomTuning() {
+            try {
+                const name = customTuningNameInput.value.trim();
+                if (!name) throw new Error('Tuning name is required.');
+
+                const notes = parseAbsoluteNotes(customNoteLinesInput.value);
+                const referenceHz = referenceHzInput.value ? Number(referenceHzInput.value) : null;
+                if (referenceHzInput.value && (!Number.isFinite(referenceHz) || referenceHz <= 0)) {
+                    throw new Error('Reference Hz must be a positive number.');
+                }
+
+                const payload = {
+                    name,
+                    description: customTuningDescriptionInput.value.trim(),
+                    data: {
+                        type: 'absolute-frequency',
+                        notes,
+                        ...(referenceHz ? { referenceHz } : {})
+                    }
+                };
+
+                await apiRequest('', { method: 'POST', body: JSON.stringify(payload) });
+
+                customTuningNameInput.value = '';
+                customTuningDescriptionInput.value = '';
+                customNoteLinesInput.value = '';
+                referenceHzInput.value = '';
+
+                await refreshCustomTunings();
+                setStatus('Custom tuning saved.');
+            } catch (err) {
+                setStatus(`Save failed: ${err.message}`, true);
+            }
+        }
+
+        async function deleteSelectedCustomTuning() {
+            const value = scaleSelect.value;
+            if (!value.startsWith('custom:')) {
+                setStatus('Select a custom tuning to delete.', true);
+                return;
+            }
+
+            const tuningId = value.slice('custom:'.length);
+            try {
+                await apiRequest(`/${encodeURIComponent(tuningId)}`, { method: 'DELETE' });
+                await refreshCustomTunings();
+                setStatus('Custom tuning deleted.');
+            } catch (err) {
+                setStatus(`Delete failed: ${err.message}`, true);
+            }
+        }
+
+        scaleSelect.addEventListener('change', applySelectedScale);
+        document.getElementById('save-api-url-btn').addEventListener('click', () => {
+            const base = getApiBase();
+            if (!base) {
+                setStatus('Enter an API base URL first.', true);
+                return;
+            }
+            localStorage.setItem(API_BASE_KEY, base);
+            setStatus('API base URL saved.');
         });
+        document.getElementById('refresh-custom-btn').addEventListener('click', refreshCustomTunings);
+        document.getElementById('save-custom-btn').addEventListener('click', saveCustomTuning);
+        document.getElementById('delete-custom-btn').addEventListener('click', deleteSelectedCustomTuning);
+
+        const storedApiBase = localStorage.getItem(API_BASE_KEY);
+        if (storedApiBase) {
+            apiBaseUrlInput.value = storedApiBase;
+        }
 
         // Activate microphone
         document.getElementById('start').onclick = async () => {
@@ -496,11 +886,23 @@
             analyser.getFloatTimeDomainData(tdarray);
             analyser.getFloatFrequencyData(fdarray);
 
-            drawAmpTime();
-            drawFreqTime();
-            draw_autocorr_fft()
+            // Compute all intermediates once
+            const autocorr = computeAutocorr(tdarray);       // reuse across steps
+            const diff = computeDiff(autocorr);
+            const cmnd = computeCMND(diff);
+            const tau = findThreshold(cmnd, 0.1);
+            const tauFine = parabolicRefine(cmnd, tau);
+
+            // Then draw each canvas with already-computed data
+            drawAmpTime(tdarray);
+            drawAutocorr(autocorr);
+            drawDiff(diff);
+            drawCMND(cmnd);
+            drawThreshold(cmnd, tau);
+            drawParabola(cmnd, tauFine);
         }
 
+        // Amplitudes from analyser
         function drawAmpTime() {
             const canvas = document.getElementById('amp-canvas');
             const ctx = canvas.getContext('2d');
@@ -532,7 +934,7 @@
             drawAxes(ctx, WIDTH, HEIGHT, "Time", "Amp");
         };
 
-
+        // Frequencies from analyser
         function drawFreqTime() {
             const canvas = document.getElementById('freq-canvas');
             const ctx = canvas.getContext('2d');
@@ -581,54 +983,38 @@
             ctx.fillText(labelX, width - 40, height - 5);
         }
 
-
-
-        function autocor_fft() {
-            analyser.getFloatTimeDomainData(buffer);
-            const size = buffer.length;
-            const autocorr = new Float32Array(size);
-            for (let lag = 0; lag < size; lag++) {
-                let sum = 0;
-                for (let i = 0; i < size - lag; i++) {
-                    sum += buffer[i] * buffer[i + lag];
-                }
-                autocorr[lag] = sum;
-            }
+        // Compute all intermediates once
+        function computeAutocorr(tdarray) {
             return autocorr;
         }
+        function computeDiff(autocorr) {
+            return diff;
+        }
+        function computeCMND(diff) {
+            return cmnd;
+        }
+        function withThreshold(cmnd, thresh=0.1) {
+            return cmnd_thresh;
+        }
+        function interpolateParabola(cmnd, tau) {
+            return parabola;
+        }
 
-        function draw_autocorr_fft() {
-            const canvas = document.getElementById('autocorr-canvas');
-            const ctx = canvas.getContext('2d');
-            const data = autocor_fft();
-            const WIDTH = canvas.width = canvas.clientWidth;
-            const HEIGHT = canvas.height = canvas.clientHeight;
-            const margin = 40;
-            const plotWidth = WIDTH - margin;
-            const plotHeight = HEIGHT - margin;
+        // Draw Yin canvases
+        function drawAutocorr(autocorr) {
 
-    
+        }
+        function drawDiff(diff) {
 
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            ctx.beginPath();
-            ctx.strokeStyle = "#004E38"; // --wm-green
+        }
+        function drawCMND(cmnd) {
 
-            const sliceWidth = canvas.width / (data.length / 2);
-            let x = 0;
+        }
+        function drawThreshold(cmnd, tau) {
 
-            for (let i = 0; i < data.length / 2; i++) {
-                // Normalize the values: data[0] is always the peak (max energy)
-                const v = data[i] / data[0]; 
-                const y = (1 - v) * canvas.height;
+        }
+        function drawParabola(cmnd, tauFine) {
 
-                if (i === 0) {
-                    ctx.moveTo(x, y);
-                } else {
-                    ctx.lineTo(x, y);
-                }
-                x += sliceWidth;
-            }
-            ctx.stroke();
         }
 
         function centsToHue(cents) {
@@ -643,7 +1029,6 @@
         }
 
         function update() {
-            
             analyser.getFloatTimeDomainData(buffer);
             const pitch = autoCorrelate(buffer, audioCtx.sampleRate);
 
@@ -657,14 +1042,14 @@
                 const bg = `rgba(255, 255, 255, 1)`;
                 const bgMid = `rgba(0, 78, 56, ${opacity * 0.7})`;
                 const bgEdge = `rgba(0, 78, 56, ${opacity * 0.2})`;
-                
+
                 document.getElementById('note').innerText = note;
                 document.getElementById('note').style.color = color;
                 document.getElementById('freq').innerText = `${pitch.toFixed(1)} Hz`;
                 document.getElementById('freq').style.color = color;
                 document.getElementById('needle').style.left = `${50 + Math.max(-50, Math.min(50, cents))}%`;
                 document.getElementById('needle').style.backgroundColor = color;
-               
+
                 document.getElementById('cloud-circle').style.background = `radial-gradient(ellipse at center,
                     ${bg} 0%,
                     ${bg} 15%,
@@ -723,7 +1108,36 @@
 
 
         function getNote(frequency) {
-            console.log(currentScale);
+            if (currentScale.kind === 'absolute') {
+                const noteEntries = Array.isArray(currentScale.notes) ? currentScale.notes : [];
+                if (noteEntries.length === 0) {
+                    return { note: '--', cents: 0 };
+                }
+
+                let best = { note: noteEntries[0].note || '--', cents: 0, dist: Infinity };
+
+                for (const entry of noteEntries) {
+                    const baseFreq = Number(entry.frequency);
+                    if (!Number.isFinite(baseFreq) || baseFreq <= 0) continue;
+
+                    for (let shift = -4; shift <= 4; shift++) {
+                        const target = baseFreq * Math.pow(2, shift);
+                        const cents = 1200 * Math.log2(frequency / target);
+                        const dist = Math.abs(cents);
+
+                        if (dist < best.dist) {
+                            best = {
+                                note: shift === 0 ? entry.note : `${entry.note} (${shift > 0 ? '+' : ''}${shift} oct)`,
+                                cents,
+                                dist
+                            };
+                        }
+                    }
+                }
+
+                return { note: best.note, cents: best.cents };
+            }
+
             const { notes, cents, octave } = currentScale;
 
             // Convert frequency to cents above A4 (440Hz), then reduce to one pseudo-octave
@@ -747,6 +1161,8 @@
             const deviation = centsInOctave - nearestCents; // signed cents off from nearest note
             return { note: nearestNote, cents: deviation };
         }
+
+        refreshCustomTunings();
     </script>
 </body>
 
